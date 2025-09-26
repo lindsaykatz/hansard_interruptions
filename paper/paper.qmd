@@ -1,0 +1,9 @@
+---
+title: "Do Women Politicians Face More Interruptions? An Exploratory Analysis of Interjections in the Australian Parliamentary Debates (2012-2025)"
+format: pdf
+editor: visual
+---
+
+## Abstract
+
+While interruptions are a natural component of parliamentary debate, they also reveal information about politicians’ behaviour and power dynamics within political institutions. In this paper, we use a comprehensive dataset of digitized Australian Hansard transcripts from 2012 to 2025 to examine the content and nature of interruptions in parliamentary proceedings, with a focus on gender. Our exploratory analysis shows differences in the frequency of interruptions made towards men and women politicians, and how that has changed over time. We replicate components of this analysis with Large Language Models (LLMs) to assess the alignment between automated and manual analytical findings, and to highlight the potential of LLMs as tools in quantitative political science research. This study contributes new empirical evidence to the study of gender and legislative speech, demonstrating the value of computational methods for uncovering how subtle forms of discursive inequality reinforce power dynamics.

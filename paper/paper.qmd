@@ -1,9 +1,54 @@
 ---
 title: "Do Women Politicians Face More Interruptions? An Exploratory Analysis of Interjections in the Australian Parliamentary Debates (2012-2025)"
+abstract: "While interruptions are a natural component of parliamentary debate, they also reveal information about politicians' behaviour and power dynamics within political institutions. In this paper, we use a comprehensive dataset of digitized Australian Hansard transcripts from 2012 to 2025 to examine the content and nature of interruptions in parliamentary proceedings, with a focus on gender. Our exploratory analysis shows differences in the frequency of interruptions made towards men and women politicians, and how that has changed over time. We replicate components of this analysis with Large Language Models (LLMs) to assess the alignment between automated and manual analytical findings, and to highlight the potential of LLMs as tools in quantitative political science research. This study contributes new empirical evidence to the study of gender and legislative speech, demonstrating the value of computational methods for uncovering how subtle forms of discursive inequality reinforce power dynamics."
 format: pdf
 editor: visual
+bibliography: ref.bib
+csl: chicago.csl
 ---
 
-## Abstract
+# Introduction
 
-While interruptions are a natural component of parliamentary debate, they also reveal information about politicians’ behaviour and power dynamics within political institutions. In this paper, we use a comprehensive dataset of digitized Australian Hansard transcripts from 2012 to 2025 to examine the content and nature of interruptions in parliamentary proceedings, with a focus on gender. Our exploratory analysis shows differences in the frequency of interruptions made towards men and women politicians, and how that has changed over time. We replicate components of this analysis with Large Language Models (LLMs) to assess the alignment between automated and manual analytical findings, and to highlight the potential of LLMs as tools in quantitative political science research. This study contributes new empirical evidence to the study of gender and legislative speech, demonstrating the value of computational methods for uncovering how subtle forms of discursive inequality reinforce power dynamics.
+Women are increasingly being elected to parliaments around the world, including in Australia. Despite gains in numerical representation, women remain underrepresented in a substantive sense, because their ability to influence political debates and shape policy outcomes is often constrained. @pitkin1967 distinguishes between these two forms of representation as *descriptive* and *substantive*. Descriptive representation refers to the presence of women in elected office, while substantive representation involves speaking and acting on behalf of women’s interests, including introducing legislation, engaging in debates, or undertaking advocacy efforts [@mccallion2024].
+
+However, increases in women's descriptive representation do not automatically lead to stronger substantive representation. Feminist institutionalist scholars argue that political institutions are gendered in ways that constrain women’s political influence [@tremblay2003; @sawer2012; @kenny2014]. Formal and informal rules, norms, and hierarchies within institutions can subtly, yet powerfully limit women’s ability to engage in substantive representation. One such behaviour is the use of interruptions during parliamentary proceedings. Interruptions are defined as "intrusions into the current speaker's turn" [@kollock1985, p. 38]. Although interruptions are a routine and institutionally sanctioned feature of parliamentary debate, they can be employed particularly by male politicians to assert dominance, undermine, or silence female politicians [@vallejo2022]. As @och2020 argues, such interruptions can be a form of resistance to women’s substantive representation, reinforcing gendered power dynamics within parliament. 
+
+Following Celis et al.'s [-@celis2008, p.99] calls to rethink substantive representation along the lines of "where, how, and why" does it occur, this paper emphasizes the "who" and "how." Specifically, we examine who is interrupted, focusing on the gender and political party affiliation of the Members of Parliament (MPs) and how interruptions operate as a gendered constraint on substantive representation in the Australian House of Representatives. Our paper asks: do women MPs get interrupted more than men MPs? Does political party affiliation shape which MPs get interrupted the most? How does the issue being discussed impact the likelihood or nature of interruptions?
+
+To answer these questions, we analyze a comprehensive dataset of digitized Hansard transcripts from the 39th to 47th parliaments (November 1998 to March 2025) [@katz2025]. Through quantitative analysis of parliamentary debates and Question Time (QT), we examine the frequency and nature of interruptions along gendered, party, and policy issue lines. Our findings reveal that women MPs from centre and centre-left leaning political parties are interrupted more frequently than men MPs, especially when speaking on issues related to women.
+
+This paper contributes to a small, but growing body of quantitative research analyzing the substantive representation of women in Australian politics [@vacaflores2025; @vandijk2025]. By combining feminist institutional analysis with quantitative methods, we reveal how institutional constraints like interruptions undermine women's substantive representation.
+
+This paper proceeds as follows. We begin by outlining our theoretical frameworks, including women’s substantive representation, feminist institutionalism, and gendered parliamentary discourse. We then discuss our data and methodology, followed by analysis of our results. Lastly, we conclude by summarizing our main findings, highlighting our contributions, and suggesting areas for future research.
+
+# Literature Review
+
+## Substantive Representation
+
+**[TO ADD: Discussion of what constitutes substantive rep, substantive rep by political party affiliation, definition and discussion of "women's issues"]**
+
+## Parliamentary Culture and Gender
+
+**[TO ADD: Discussion of feminist institutionalism, parliamentary privilege, informal norms, power, and experiences of women politicians]**
+
+## Interruptions and Gender
+
+Prior studies analyzing the gendered nature of interruptions in parliamentary debates and committee meetings globally show mixed results. In the German Bundestag, @och2020 found that women MPs are more likely to be interrupted than men, but argue that these interruptions are not a form of semiotic violence against women in politics (VAWIP). Similarly, @stopfner2018 employed qualitative case studies to understand whether gendered heckling is shaped by specific parliamentary contexts or reflects broader parliamentary culture. She concludes that both institutional norms and transnational parliamentary cultures contribute to the gendered interruptions that undermine women’s process-oriented substantive representation [@rayment2024]. 
+
+In contrast, evidence from the Ecuadorian Congress presents a more nuanced picture. @vallejo2022 found that while women Members of Congress (MCs) were less likely to be interrupted than men, interruptions silenced women at a higher rate. However, they found that higher status and promotion to more prominent legislative roles could reverse some of the most negative effects of interruptions for women MCs. 
+
+In the Canadian House of Commons, @whyte2017 found that gendered interruptions sharply increased during the 1990s, coinciding with an increase in the descriptive representation of women. Yet, @vandijk2025’s analysis of parliamentary speeches in the UK, Australia, and Croatia finds no gender difference in whether individual politicians get interrupted and that all politicians are less likely to be interrupted when more women participate in debates. Notably, they find that in Australia, the number of interruptions declined as the number of women serving in parliament increased.
+
+Research focused on committee meetings further illustrates the gendered nature of interruptions. In the Australian senate estimate hearings between 2006 and 2015, @richards2016 finds that male senators used interruptions to block other speakers or assert control over the floor, with women senators and witnesses receiving the most negative interruptions. Likewise, in US state legislatures, @kathlene1994 shows that as the number of women increases in committee hearings, male legislators responded with more interruptions and verbal aggression aimed at undermining women’s substantive participation in the policymaking process. Additionally, Miller and Sutherland found that women senators faced twice as many interruptions from male colleagues when speaking about “women’s issues,” with male senators employing an aggressive form of interruptions called “rapid-fire ‘interruption clusters’” to undermine and disrupt their speeches [-@miller2023, p. 103].
+
+Taken together, these studies of both parliamentary debates and committee meetings emphasize that even as the number of women elected increases, women politicians are often interrupted more frequently by male colleagues. This pattern largely holds across nations and institutional contexts, highlighting that interruptions undermine women politicians’ abilities to speak and act on behalf of women. By focusing on interruptions in the Australian House of Representatives from 1998 to 2025, our paper contributes to the literature by combining feminist institutionalism with quantitative methods to examine how interruptions function as a persistent, gendered constraint on women’s substantive representation in parliament.  
+
+# Data and Methods
+
+We use longitudinal data to identify patterns over time, particularly as the descriptive representation of women in the House of Representatives increased from 22 percent in 1998 to 44.5 percent in 2022. This period also includes important political milestones, such as Julia Gillard’s tenure as Australia’s first woman Prime Minister (2010 to 2013), including her 2012 sexism and misogyny speech, which drew attention to the gendered nature of Australian politics [@sawer2013].
+
+# Analysis and Results
+
+# Conclusion
+
+# References

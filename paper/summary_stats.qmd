@@ -15,125 +15,77 @@ library(arrow)
 
 # data import
 corpus <- read_parquet("../inputs/corpus_1998_to_2025.parquet")
+
+# filter for just chamber proceedings
+corpus <- corpus %>% filter(fedchamb_flag==0)
 ```
 
-# Values
-
-## Number of sitting days, for House of Reps and for Federation Chamber
+## House of Reps Summary Statistics
 
 ```{r}
-corpus %>% 
-  distinct(date, fedchamb_flag) %>% 
-  group_by(fedchamb_flag) %>% 
-  count() %>% 
-  ungroup() %>% 
-  mutate(fedchamb_flag = case_when(
-    fedchamb_flag==0~"House of Reps",
-    fedchamb_flag==1~"Federation Chamber")) %>% 
-  mutate(fedchamb_flag = factor(fedchamb_flag, ordered = T,
-                           levels = c("House of Reps",
-                                      "Federation Chamber"))) %>% 
-  arrange(fedchamb_flag) %>% 
-  rename(" "=fedchamb_flag,
-         "Count" = n) %>% 
+bind_rows(
+  corpus %>% distinct(date) %>% count(name="Value") %>% 
+    mutate(Metric="Number of sitting days"),
+  corpus %>% distinct(uniqueID) %>% filter(!is.na(uniqueID)) %>% count(name="Value") %>% 
+    mutate(Metric="Number of unique speakers"),
+  corpus %>% distinct(partyAbbrev) %>% filter(!is.na(partyAbbrev)) %>% count(name="Value") %>% 
+    mutate(Metric="Number of unique parties"),
+  corpus %>% distinct(electorate) %>% filter(!is.na(electorate)) %>% count(name="Value") %>% 
+    mutate(Metric="Number of unique electorates")) %>% 
+  select(Metric, Value) %>% 
   knitr::kable()
 ```
 
-## Number of unique speakers, for House of Reps and for Federation Chamber
+## Number of rows flagged as interjections for House of Reps
 
 ```{r}
 corpus %>% 
-  distinct(uniqueID, fedchamb_flag) %>% 
-  filter(!is.na(uniqueID)) %>% 
-  group_by(fedchamb_flag) %>% 
+  group_by(interject) %>% 
   count() %>% 
   ungroup() %>% 
-  mutate(fedchamb_flag = case_when(
-    fedchamb_flag==0~"House of Reps",
-    fedchamb_flag==1~"Federation Chamber")) %>% 
-    mutate(fedchamb_flag = factor(fedchamb_flag, ordered = T,
-                           levels = c("House of Reps",
-                                      "Federation Chamber"))) %>% 
-  arrange(fedchamb_flag) %>% 
-  rename(" "=fedchamb_flag,
-         "Count" = n) %>% 
-  knitr::kable()
-```
-
-## Number of unique parties, for House of Reps and for Federation Chamber
-
-```{r}
-corpus %>% 
-  distinct(party, fedchamb_flag) %>% 
-  filter(!is.na(party)) %>% 
-  group_by(fedchamb_flag) %>% 
-  count() %>% 
-  ungroup() %>% 
-  mutate(fedchamb_flag = case_when(
-    fedchamb_flag==0~"House of Reps",
-    fedchamb_flag==1~"Federation Chamber")) %>% 
-    mutate(fedchamb_flag = factor(fedchamb_flag, ordered = T,
-                           levels = c("House of Reps",
-                                      "Federation Chamber"))) %>% 
-  arrange(fedchamb_flag) %>% 
-  rename(" "=fedchamb_flag,
-         "Count" = n) %>% 
-  knitr::kable()
-```
-
-## Number of rows flagged as interjections, for House of Reps and for Federation Chamber
-
-```{r}
-corpus %>% 
-  group_by(interject, fedchamb_flag) %>% 
-  count() %>% 
-  ungroup() %>% 
-  mutate(fedchamb_flag = case_when(
-    fedchamb_flag==0~"House of Reps",
-    fedchamb_flag==1~"Federation Chamber")) %>% 
-  pivot_wider(names_from = fedchamb_flag, values_from = n) %>% 
   rename("Interjection Flag" = interject) %>% 
   knitr::kable()
 ```
 
-## Number of interjections by gender, for House of Reps and for Federation Chamber
+## Number and proportion of interjections by gender for House of Reps
+
+```{r}
+left_join(
+  corpus %>% group_by(gender, interject) %>% 
+  count() %>% ungroup() %>% filter(interject==1),
+  corpus %>% group_by(gender, interject) %>% 
+  count() %>% ungroup() %>% pivot_wider(names_from = interject, values_from = n) %>% 
+  mutate(prop_interject = `1`/(`1`+`0`)*100) %>% 
+  select(-`0`, -`1`) %>% 
+  mutate(prop_interject=round(prop_interject,2),
+         prop_interject = paste0(prop_interject,"%"))) %>% 
+  select(Gender=gender, Count=n, Proportion=prop_interject) %>% 
+  mutate(Gender=str_to_sentence(Gender)) %>% 
+  knitr::kable()
+```
+## Number of interjections by political party
 
 ```{r}
 corpus %>% 
-  filter(!is.na(gender)) %>% 
-  group_by(gender, interject, fedchamb_flag) %>% 
+  filter(interject==1 & !is.na(partyName)) %>% 
+  group_by(partyName) %>% 
   count() %>% 
-  ungroup() %>% 
-  filter(interject==1) %>%  
-  mutate(fedchamb_flag = case_when(
-    fedchamb_flag==0~"House of Reps",
-    fedchamb_flag==1~"Federation Chamber"),
-    gender = str_to_sentence(gender)) %>% 
-  pivot_wider(names_from=fedchamb_flag, values_from=n) %>% 
-  select(-interject) %>% 
-  rename(Gender=gender) %>% 
+  arrange(desc(n)) %>% 
+  rename(`Party Name`=partyName) %>% 
   knitr::kable()
 ```
 
-## Proportion of interjections by gender, for House of Reps and for Federation Chamber
+## Number of interjections by political party and gender
 
 ```{r}
 corpus %>% 
-  filter(!is.na(gender)) %>% 
-  group_by(gender, interject, fedchamb_flag) %>% 
+  filter(interject==1 & !is.na(partyName) & !is.na(gender)) %>% 
+  group_by(partyName, gender) %>% 
   count() %>% 
   ungroup() %>% 
-  pivot_wider(names_from = interject, values_from = n) %>% 
-  mutate(prop_interject = `1`/(`1`+`0`)*100) %>% 
-  select(-`0`, -`1`) %>% 
-  mutate(fedchamb_flag = case_when(
-    fedchamb_flag==0~"House of Reps",
-    fedchamb_flag==1~"Federation Chamber"),
-    gender = str_to_sentence(gender)) %>% 
-  mutate(prop_interject=round(prop_interject,2),
-         prop_interject = paste0(prop_interject,"%")) %>% 
-  pivot_wider(names_from=fedchamb_flag, values_from=prop_interject) %>% 
-  rename(Gender=gender) %>% 
+  pivot_wider(names_from = gender, values_from = n) %>% 
+  rename(`Party Name`=partyName, Female=female, Male=male) %>% 
+  mutate(across(c(Female, Male), ~ifelse(is.na(.x), 0, .x))) %>% 
   knitr::kable()
 ```
 
@@ -141,20 +93,16 @@ corpus %>%
 
 ```{r}
 speech_length_stats <- corpus %>% 
-  group_by(speech_no, date, fedchamb_flag) %>% 
-  summarise(speech_length = sum(str_count(body, "\\w+"))) %>% 
+  group_by(speech_no, date) %>% 
+  # add 1 because counting number of spaces
+  summarise(speech_length = sum(str_count(body, "\\s+")+1)) %>% 
   ungroup()
 
 speech_length_stats %>% 
-  group_by(fedchamb_flag) %>% 
   summarise(mean_speech_length = mean(speech_length, na.rm=T),
             min_speech_length = min(speech_length, na.rm=T),
             max_speech_length = max(speech_length, na.rm=T),
             sd_speech_length = sd(speech_length, na.rm=T)) %>% 
-  ungroup() %>% 
-  mutate(fedchamb_flag = case_when(
-    fedchamb_flag==0~"House of Reps",
-    fedchamb_flag==1~"Federation Chamber")) %>% 
   pivot_longer(c(mean_speech_length:last_col()), names_to = "Metric", values_to = "Value") %>% 
     mutate(Value = round(Value, 2),
          Metric = case_when(
@@ -162,36 +110,25 @@ speech_length_stats %>%
            Metric=="max_speech_length" ~ "Maximum",
            Metric=="mean_speech_length" ~ "Average",
            Metric=="sd_speech_length" ~ "Standard Deviation")) %>% 
-  pivot_wider(names_from = fedchamb_flag, values_from = Value) %>% 
   knitr::kable()
 ```
 
-# Graphs
-
-## Number of days, per year, for House of Reps and for Federation Chamber
+## Number of days, per year for House of Reps
 
 ```{r}
 corpus %>% 
-  distinct(date, fedchamb_flag) %>% 
+  distinct(date) %>% 
   mutate(year = str_extract(date, "^\\d{4}")) %>% 
-  mutate(fedchamb_flag = case_when(
-    fedchamb_flag==1 ~ "Federation Chamber",
-    fedchamb_flag==0 ~ "House of Reps")) %>% 
-  mutate(fedchamb_flag = factor(fedchamb_flag, ordered = T,
-                           levels = c("House of Reps",
-                                      "Federation Chamber"))) %>% 
-  group_by(year, fedchamb_flag) %>% 
+  group_by(year) %>% 
   count() %>% 
   ungroup() %>% 
   mutate(year = as.numeric(year)) %>% 
-  ggplot(aes(x=year, y=n, fill=fedchamb_flag)) +
+  ggplot(aes(x=year, y=n)) +
   geom_col() +
-  facet_wrap(~fedchamb_flag) +
   theme_bw() +
   theme(legend.position = "none") +
   labs(x="Year", y="Number of sitting days",
-       #title = "Number of sitting days per year",
-       caption = "Note: Proceedings captured are from March 1998 to July 2025.") + scale_fill_manual(values=c("#66C2A5","#FC8D62"))
+       caption = "Note: Proceedings captured are from March 1998 to July 2025.")
 ```
 
 ## Number of unique speakers per day
@@ -199,23 +136,16 @@ corpus %>%
 ```{r}
 corpus %>% 
   filter(!is.na(uniqueID)) %>% 
-  distinct(date, uniqueID, fedchamb_flag) %>% 
-  mutate(fedchamb_flag = case_when(
-    fedchamb_flag==1 ~ "Federation Chamber",
-    fedchamb_flag==0 ~ "House of Reps")) %>% 
-  mutate(fedchamb_flag = factor(fedchamb_flag, ordered = T,
-                           levels = c("House of Reps",
-                                      "Federation Chamber"))) %>% 
-  group_by(date, fedchamb_flag) %>% 
+  distinct(date, uniqueID) %>% 
+  group_by(date) %>% 
   count() %>%
-  ggplot(aes(x=date, y=n, color=fedchamb_flag)) +
-  geom_point(alpha=0.3) +
-  facet_wrap(~fedchamb_flag, nrow=2) +
+  ggplot(aes(x=date, y=n)) +
+  geom_point(alpha=0.5) +
   theme_bw() +
   theme(legend.position = "none") +
   labs(x="Year", y="Number of unique speakers",
      #  title = "Number of unique speakers per day",
-       caption = "Note: Proceedings captured are from March 1998 to July 2025.") + scale_color_brewer(palette = "Set2")
+       caption = "Note: Proceedings captured are from March 1998 to July 2025.")
 ```
 
 ## Number of unique women and men speakers, per year
@@ -223,136 +153,91 @@ corpus %>%
 ```{r}
 corpus %>% 
   mutate(year = as.numeric(str_extract(date, "^\\d{4}"))) %>% 
-  distinct(uniqueID, gender, year, fedchamb_flag) %>% 
+  distinct(uniqueID, gender, year) %>% 
   filter(!is.na(gender)) %>% 
-  mutate(fedchamb_flag = case_when(
-    fedchamb_flag==1 ~ "Federation Chamber",
-    fedchamb_flag==0 ~ "House of Reps"),
-    gender = case_when(gender=="female"~"Female",
+  mutate(gender = case_when(gender=="female"~"Female",
                        gender=="male"~"Male")) %>% 
-    mutate(fedchamb_flag = factor(fedchamb_flag, ordered = T,
-                           levels = c("House of Reps",
-                                      "Federation Chamber"))) %>% 
-  group_by(year, gender, fedchamb_flag) %>% 
+  group_by(year, gender) %>% 
   count() %>% 
   ggplot(aes(x=year, y=n, color = gender)) +
   geom_line() +
   geom_point() +
-  facet_wrap(~fedchamb_flag, ncol=1) +
   theme_bw() +
   labs(x="Year", y="Number of unique speakers", color="Gender",
       # title = "Number of unique speakers by gender per year",
-       caption = "Note: Proceedings captured are from March 1998 to July 2025.")+ scale_color_brewer(palette = "Set2")
+       caption = "Note: Proceedings captured are from March 1998 to July 2025.")
 ```
 
-## Number of unique speeches, per day, for House of Reps and for Federation Chamber
-
-**NOTE: I added rows with a count of 0 speeches for sitting days that didn't have a federation chamber proceeding. Let me know if you think this is wrong.**
+## Number of unique speeches, per day for House of Reps
 
 ```{r}
 corpus %>% 
-  distinct(date, speech_no, fedchamb_flag) %>% 
-  group_by(date, fedchamb_flag) %>% 
+  distinct(date, speech_no) %>% 
+  group_by(date) %>% 
   count() %>% 
-  mutate(fedchamb_flag = case_when(
-    fedchamb_flag==1 ~ "Federation Chamber",
-    fedchamb_flag==0 ~ "House of Reps")) %>% 
   ungroup() %>% 
-  mutate(fedchamb_flag = factor(fedchamb_flag, ordered = T,
-                           levels = c("House of Reps",
-                                      "Federation Chamber"))) %>% 
-  # add 0s to days with no fed chamb so it shows up on the plot
-  complete(date, fedchamb_flag, fill=list(n=0)) %>% 
-  ggplot(aes(x=date, y=n, color=fedchamb_flag))+
-  geom_point(alpha=0.3) +
-  facet_wrap(~fedchamb_flag, ncol=1) +
+  ggplot(aes(x=date, y=n))+
+  geom_point(alpha=0.5) +
   theme_bw()+
   theme(legend.position = "none") +
   labs(x="Date", y="Number of speeches",
       # title = "Number of speeches per day",
-       caption = "Note: Proceedings captured are from March 1998 to July 2025.")+ scale_color_brewer(palette = "Set2")
+       caption = "Note: Proceedings captured are from March 1998 to July 2025.")
 ```
 
-## Number of interjections by year, for House of Reps and for Federation Chamber
-
-**NOTE: I set the scales to free_y in the facet wrap so you can see the numbers for Federation Chamber better. But if you think it's better for the scale to be the same I can change it.**
+## Number of interjections by year for House of Reps
 
 ```{r}
 corpus %>% 
-  select(date, fedchamb_flag, interject) %>% 
+  select(date, interject) %>% 
   mutate(year = as.numeric(str_extract(date, "^\\d{4}"))) %>% 
-  mutate(fedchamb_flag = case_when(
-    fedchamb_flag==1 ~ "Federation Chamber",
-    fedchamb_flag==0 ~ "House of Reps")) %>% 
-  mutate(fedchamb_flag = factor(fedchamb_flag, ordered = T,
-                           levels = c("House of Reps",
-                                      "Federation Chamber"))) %>% 
-  group_by(year, interject, fedchamb_flag) %>% 
+  group_by(year, interject) %>% 
   count() %>% 
   ungroup() %>% 
   filter(interject==1) %>% 
-  ggplot(aes(x=year, y=n, fill=fedchamb_flag)) +
+  ggplot(aes(x=year, y=n)) +
   geom_col() +
-  facet_wrap(~fedchamb_flag, ncol=1, scale="free_y") +
   theme_bw() +
   theme(legend.position = "none")+
   labs(x="Year", y="Number of interjections",
       # title = "Number of interjections per year",
-       caption = "Note: Proceedings captured are from March 1998 to July 2025.") + scale_fill_manual(values=c("#66C2A5","#FC8D62"))
+       caption = "Note: Proceedings captured are from March 1998 to July 2025.")
 ```
 
-## Number of interjections by day, for House of Reps and for Federation Chamber
-
-**NOTE: I set the scales to free_y in the facet wrap so you can see the numbers for Federation Chamber better. But if you think it's better for the scale to be the same I can change it.**
+## Number of interjections by day for House of Reps
 
 ```{r}
 corpus %>% 
-  select(date, fedchamb_flag, interject) %>% 
-  mutate(fedchamb_flag = case_when(
-    fedchamb_flag==1 ~ "Federation Chamber",
-    fedchamb_flag==0 ~ "House of Reps")) %>% 
-    mutate(fedchamb_flag = factor(fedchamb_flag, ordered = T,
-                           levels = c("House of Reps",
-                                      "Federation Chamber"))) %>% 
-  group_by(date, interject, fedchamb_flag) %>% 
+  select(date, interject) %>% 
+  group_by(date, interject) %>% 
   count() %>% 
   ungroup() %>% 
   filter(interject==1) %>% 
-  ggplot(aes(x=date, y=n, color=fedchamb_flag)) +
-  geom_point(alpha=0.3) +
-  facet_wrap(~fedchamb_flag, ncol=1, scales="free_y") +
+  ggplot(aes(x=date, y=n)) +
+  geom_point(alpha=0.5) +
   theme_bw() +
   theme(legend.position = "none")+
   labs(x="Date", y="Number of interjections",
       # title = "Number of interjections per day",
-       caption = "Note: Proceedings captured are from March 1998 to July 2025.")+ scale_color_brewer(palette = "Set2")
+       caption = "Note: Proceedings captured are from March 1998 to July 2025.")
 ```
 
-## Number of interjections by day, by gender, for House of Reps and for Federation Chamber
-
-**NOTE: I set the scales to free_y in the facet wrap so you can see the numbers for Federation Chamber better. But if you think it's better for the scale to be the same I can change it.**
+## Number of interjections by day, by gender for House of Reps
 
 ```{r}
 corpus %>% 
-  select(date, fedchamb_flag, gender, interject) %>% 
-  mutate(fedchamb_flag = case_when(
-    fedchamb_flag==1 ~ "Federation Chamber",
-    fedchamb_flag==0 ~ "House of Reps"),
-    gender = case_when(gender=="female"~"Female",
+  select(date, gender, interject) %>% 
+  mutate(gender = case_when(gender=="female"~"Female",
                        gender=="male"~"Male")) %>% 
-    mutate(fedchamb_flag = factor(fedchamb_flag, ordered = T,
-                           levels = c("House of Reps",
-                                      "Federation Chamber"))) %>% 
-  group_by(date, interject, fedchamb_flag, gender) %>% 
+  group_by(date, interject, gender) %>% 
   count() %>% 
   ungroup() %>% 
   filter(interject==1, !is.na(gender)) %>% 
   ggplot(aes(x=date, y=n, color=gender)) +
-  geom_point(alpha=0.3) +
-  facet_grid(fedchamb_flag~gender, scales="free_y") +
+  geom_point(alpha=0.5) +
   theme_bw() +
   theme(legend.position = "none")+
   labs(x="Date", y="Number of interjections",
        #title = "Number of interjections per day",
-       caption = "Note: Proceedings captured are from March 1998 to July 2025.")+ scale_color_brewer(palette = "Set2")
+       caption = "Note: Proceedings captured are from March 1998 to July 2025.")
 ```

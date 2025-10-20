@@ -1,21 +1,24 @@
 ---
-title: "Do Women Politicians Face More Interruptions? An Exploratory Analysis of Interjections in the Australian Parliamentary Debates (2012-2025)"
-abstract: "While interruptions are a natural component of parliamentary debate, they also reveal information about politicians' behaviour and power dynamics within political institutions. In this paper, we use a comprehensive dataset of digitized Australian Hansard transcripts from 2012 to 2025 to examine the content and nature of interruptions in parliamentary proceedings, with a focus on gender. Our exploratory analysis shows differences in the frequency of interruptions made towards men and women politicians, and how that has changed over time. We replicate components of this analysis with Large Language Models (LLMs) to assess the alignment between automated and manual analytical findings, and to highlight the potential of LLMs as tools in quantitative political science research. This study contributes new empirical evidence to the study of gender and legislative speech, demonstrating the value of computational methods for uncovering how subtle forms of discursive inequality reinforce power dynamics."
+title: "Do Women Politicians Face More Interruptions? An Analysis of Interjections in the Australian Parliamentary Debates (1998-2025)"
+abstract: "While interruptions are a natural component of parliamentary debate, they also reveal information about politicians' behaviour and power dynamics within political institutions. In this paper, we use a comprehensive dataset of digitized Australian Hansard transcripts from 1998 to 2025 to examine the content and nature of interruptions in parliamentary proceedings, with a focus on gender. Our exploratory analysis shows differences in the frequency of interruptions made towards men and women politicians, and how that has changed over time. We replicate components of this analysis with Large Language Models (LLMs) to assess the alignment between automated and manual analytical findings, and to highlight the potential of LLMs as tools in quantitative political science research. This study contributes new empirical evidence to the study of gender and legislative speech, demonstrating the value of computational methods for uncovering how subtle forms of discursive inequality reinforce power dynamics."
 format: pdf
 editor: visual
 bibliography: ref.bib
 csl: chicago.csl
+execute:
+  echo: false
+tbl-cap-location: top
 ---
 
 # Introduction
 
 Women are increasingly being elected to parliaments around the world, including in Australia. Despite gains in numerical representation, women remain underrepresented in a substantive sense, because their ability to influence political debates and shape policy outcomes is often constrained. @pitkin1967 distinguishes between these two forms of representation as *descriptive* and *substantive*. Descriptive representation refers to the presence of women in elected office, while substantive representation involves speaking and acting on behalf of women’s interests, including introducing legislation, engaging in debates, or undertaking advocacy efforts [@mccallion2024].
 
-However, increases in women's descriptive representation do not automatically lead to stronger substantive representation. Feminist institutionalist scholars argue that political institutions are gendered in ways that constrain women’s political influence [@tremblay2003; @sawer2012; @kenny2014]. Formal and informal rules, norms, and hierarchies within institutions can subtly, yet powerfully limit women’s ability to engage in substantive representation. One such behaviour is the use of interruptions during parliamentary proceedings. Interruptions are defined as "intrusions into the current speaker's turn" [@kollock1985, p. 38]. Although interruptions are a routine and institutionally sanctioned feature of parliamentary debate, they can be employed particularly by male politicians to assert dominance, undermine, or silence female politicians [@vallejo2022]. As @och2020 argues, such interruptions can be a form of resistance to women’s substantive representation, reinforcing gendered power dynamics within parliament. 
+However, increases in women's descriptive representation do not automatically lead to stronger substantive representation. Feminist institutionalist scholars argue that political institutions are gendered in ways that constrain women’s political influence [@tremblay2003; @sawer2012; @kenny2014]. Formal and informal rules, norms, and hierarchies within institutions can subtly, yet powerfully limit women’s ability to engage in substantive representation. One such behaviour is the use of interruptions during parliamentary proceedings. Interruptions are defined as "intrusions into the current speaker's turn" [@kollock1985, p. 38]. Although interruptions are a routine and institutionally sanctioned feature of parliamentary debate, they can be employed particularly by male politicians to assert dominance, undermine, or silence female politicians [@vallejo2022]. As @och2020 argues, such interruptions can be a form of resistance to women’s substantive representation, reinforcing gendered power dynamics within parliament.
 
 Following Celis et al.'s [-@celis2008, p.99] calls to rethink substantive representation along the lines of "where, how, and why" does it occur, this paper emphasizes the "who" and "how." Specifically, we examine who is interrupted, focusing on the gender and political party affiliation of the Members of Parliament (MPs) and how interruptions operate as a gendered constraint on substantive representation in the Australian House of Representatives. Our paper asks: do women MPs get interrupted more than men MPs? Does political party affiliation shape which MPs get interrupted the most? How does the issue being discussed impact the likelihood or nature of interruptions?
 
-To answer these questions, we analyze a comprehensive dataset of digitized Hansard transcripts from the 39th to 47th parliaments (November 1998 to March 2025) [@katz2025]. Through quantitative analysis of parliamentary debates and Question Time (QT), we examine the frequency and nature of interruptions along gendered, party, and policy issue lines. Our findings reveal that women MPs from centre and centre-left leaning political parties are interrupted more frequently than men MPs, especially when speaking on issues related to women.
+To answer these questions, we analyze a comprehensive dataset of digitized Hansard transcripts from the 38th to 47th parliaments (March 1998 to July 2025) [@katz2025]. Through quantitative analysis of parliamentary debates and Question Time (QT), we examine the frequency and nature of interruptions along gendered, party, and policy issue lines. Our findings reveal that women MPs from centre and centre-left leaning political parties are interrupted more frequently than men MPs, especially when speaking on issues related to women.
 
 This paper contributes to a small, but growing body of quantitative research analyzing the substantive representation of women in Australian politics [@vacaflores2025; @vandijk2025]. By combining feminist institutional analysis with quantitative methods, we reveal how institutional constraints like interruptions undermine women's substantive representation.
 
@@ -27,9 +30,9 @@ This paper proceeds as follows. We begin by outlining our theoretical frameworks
 
 Substantive representation can be conceived as how elected representatives’ actions align with the needs and wishes of their constituents [@pitkin1967]. Women politicians are often considered to be best positioned to represent the interests and needs of women, by raising policy issues of importance to women and/or by bringing women’s perspectives to policy issues often considered more masculine, such as the economy. @krook2012 define and categorize the gendered nature of cabinet positions, suggesting that policy issues such as healthcare, social welfare, and gender equality are “women’s issues,” while more masculine-coded policy issues include the economy, defence, and foreign affairs. Neutral issues could include the environment, public works, and the civil service [@krook2012]. These categorizations are useful for understanding substantive representation, but remain contested, given different parliamentary contexts and as understanding of gender moves beyond a binary framework.
 
-Substantive representation in practice can take a number of forms in parliamentary contexts, including introducing legislation, engaging in debates, asking questions during QT, participating in committee meetings, or undertaking advocacy efforts [@mccallion2024; @childs2009]. However, routine parliamentary rules and procedures, such as interruptions and adversarial behaviour, can be mobilized to either contribute to or undermine women’s substantive representation [@vallejo2022]. For example, @vacaflores2025 focuses on studying private members’ bills in the Australian House of Representatives, where party discipline is less likely to permeate the nature of issues raised. They find that gender and legislators’ individual backgrounds inform the types of issues addressed. In parliamentary speeches on bills, women politicians are more likely to speak to bills explicitly related to women’s issues [@hargrave2021; @back2019], or provide a gendered lens even if the legislation does not specifically address issues traditionally characterized as “women’s issues” [@rayment2024; @vacaflores2025]. 
+Substantive representation in practice can take a number of forms in parliamentary contexts, including introducing legislation, engaging in debates, asking questions during QT, participating in committee meetings, or undertaking advocacy efforts [@mccallion2024; @childs2009]. However, routine parliamentary rules and procedures, such as interruptions and adversarial behaviour, can be mobilized to either contribute to or undermine women’s substantive representation [@vallejo2022]. For example, @vacaflores2025 focuses on studying private members’ bills in the Australian House of Representatives, where party discipline is less likely to permeate the nature of issues raised. They find that gender and legislators’ individual backgrounds inform the types of issues addressed. In parliamentary speeches on bills, women politicians are more likely to speak to bills explicitly related to women’s issues [@hargrave2021; @back2019], or provide a gendered lens even if the legislation does not specifically address issues traditionally characterized as “women’s issues” [@rayment2024; @vacaflores2025].
 
-Defining “women’s issues” remains a key concern to scholars studying substantive representation. “Women’s issues” have never been fixed or universally agreed upon, especially as contemporary understandings of gender move beyond a binary framework. @vacaflores2025 suggests a solution to this by viewing policy issues along a spectrum of “feminized” and "masculinized" issues. This approach allows for a more flexible understanding of what counts as  “women’s issues” and who can represent women. Men politicians can also undertake the substantive representation of women [@mccallion2024] and issues not traditionally characterized as “women’s issue” still hold gendered implications [@bird2005]. Nevertheless, issues such as gender-based violence, childcare, healthcare, social welfare, and education continue to be widely viewed as “women's issues” [@rayment2024; @krook2012]. 
+Defining “women’s issues” remains a key concern to scholars studying substantive representation. “Women’s issues” have never been fixed or universally agreed upon, especially as contemporary understandings of gender move beyond a binary framework. @vacaflores2025 suggests a solution to this by viewing policy issues along a spectrum of “feminized” and "masculinized" issues. This approach allows for a more flexible understanding of what counts as “women’s issues” and who can represent women. Men politicians can also undertake the substantive representation of women [@mccallion2024] and issues not traditionally characterized as “women’s issue” still hold gendered implications [@bird2005]. Nevertheless, issues such as gender-based violence, childcare, healthcare, social welfare, and education continue to be widely viewed as “women's issues” [@rayment2024; @krook2012].
 
 Who raises these issues, and how they are framed in parliamentary speeches, is shaped by political affiliation, ideology, and party discipline [@rayment2024; @och2020; @tremblay2003]. In the Canadian parliament, @rayment2024 illustrates that Conservative women MPs are more likely than Liberal and New Democratic Party (NDP) MPs to speak about “women’s issues” between 1968 and 2015. However, Conservative MPs often focus on these issues through a traditional values lens, while Liberal and NDP MPs discuss these issues from a pro-gender equality perspective. This highlights that speaking and acting for women as part of substantive representation cannot be thought of in monolithic terms - party affiliation, ideology, and gender intersect, shaping how substantive representation occurs. @och2020 illustrates that in the German Bundestag, men MPs from right-leaning political parties were more likely to interrupt women MPs from centre and centre-left political parties regardless of the policy issues being discussed. This behaviour acts as a form of backlash to both their numerical presence and substantive contributions in parliament.
 
@@ -37,25 +40,176 @@ In Australia, scholars have documented that progressive parties such as the Aust
 
 ## Parliamentary Culture and Gender
 
-Parliamentary culture and broader institutional norms play a critical role in shaping the conditions under which women MPs can speak and act on behalf of women’s interests, despite being framed as “neutral” institutions [@collier2018]. This culture reflects and reproduces social hierarchies and power imbalances, rooted in gender, which intersect with race, sexuality, and class to shape political outcomes [@chappell2013]. In Westminster parliaments, including the Australian  House of Representatives, parliamentary culture has historically been shaped by masculine norms and values, while constraining marginalized voices [@mackay2010; @crawford2011]. Julia Gillard’s 2012 sexism and misogyny speech drew global attention to these dynamics, highlighting how women politicians face a double blind as they “...negotiate the demand to demonstrate masculine leadership attributes without tarnishing the feminine qualities expected of them [@wright2014, p. 455; @sawer2013]. Underpinning parliamentary behaviour and interactions, this culture shapes legislative debates, including interruptions, which can serve to reinforce gendered hierarchies and further marginalize women MPs. Understanding these gendered dimensions of parliamentary culture is important for understanding how interruptions can constrain women’s substantive representation.
+Parliamentary culture and broader institutional norms play a critical role in shaping the conditions under which women MPs can speak and act on behalf of women’s interests, despite being framed as “neutral” institutions [@collier2018]. This culture reflects and reproduces social hierarchies and power imbalances, rooted in gender, which intersect with race, sexuality, and class to shape political outcomes [@chappell2013]. In Westminster parliaments, including the Australian House of Representatives, parliamentary culture has historically been shaped by masculine norms and values, while constraining marginalized voices [@mackay2010; @crawford2011]. Julia Gillard’s 2012 sexism and misogyny speech drew global attention to these dynamics, highlighting how women politicians face a double blind as they “...negotiate the demand to demonstrate masculine leadership attributes without tarnishing the feminine qualities expected of them [@wright2014, p. 455; @sawer2013]. Underpinning parliamentary behaviour and interactions, this culture shapes legislative debates, including interruptions, which can serve to reinforce gendered hierarchies and further marginalize women MPs. Understanding these gendered dimensions of parliamentary culture is important for understanding how interruptions can constrain women’s substantive representation.
 
 Feminist institutionalism provides a valuable framework for analyzing gendered dynamics within parliamentary settings, drawing attention to the interaction between formal rules such as the Standing Orders and parliamentary privilege and informal rules and cultural norms [@kenny2014; @chappell2013; @mackay2010]. While formal parliamentary rules are designed to guarantee equality, informal norms often shape behaviours differently. For example, Standing Orders are intended to give women and men politicians equal speaking time, but in practice, men are more likely to interrupt women politicians. Consequently, women politicians may plan to give shorter speeches out of concern of being interrupted or abandon giving their speech entirely after being interrupted multiple times [@vallejo2022]. @hames2025 highlights that certain forms of unparliamentary language are enshrined in the Standing Orders, while other language around discussions of social issues like racism rely on case-by-case rulings by Speakers. This ambiguity and lack of codified rules could further undermine women and racialized politicians attempting to speak on behalf of marginalized groups. Furthermore, mechanisms like parliamentary privilege, which protect MPs from the legal consequences of free speech in the chamber, can help them avoid accountability on incivility and harassment, which disproportionately affect women MPs [@collier2018; @sawer2013]. Feminist institutionalism therefore directs attention toward the “hidden” ways in which gender continues to shape participation, authority, and legitimacy within political institutions [@chappell2013].
 
+**\[TO ADD: Discussion of what constitutes substantive rep, substantive rep by political party affiliation, definition and discussion of "women's issues"\]**
+
+## Parliamentary Culture and Gender
+
+**\[TO ADD: Discussion of feminist institutionalism, parliamentary privilege, informal norms, power, and experiences of women politicians\]**
+
 ## Interruptions and Gender
 
-Prior studies analyzing the gendered nature of interruptions in parliamentary debates and committee meetings globally show mixed results. In the German Bundestag, @och2020 found that women MPs are more likely to be interrupted than men, but argue that these interruptions are not a form of semiotic violence against women in politics (VAWIP). Similarly, @stopfner2018 employed qualitative case studies to understand whether gendered heckling is shaped by specific parliamentary contexts or reflects broader parliamentary culture. She concludes that both institutional norms and transnational parliamentary cultures contribute to the gendered interruptions that undermine women’s process-oriented substantive representation [@rayment2024]. 
+Prior studies analyzing the gendered nature of interruptions in parliamentary debates and committee meetings globally show mixed results. In the German Bundestag, @och2020 found that women MPs are more likely to be interrupted than men, but argue that these interruptions are not a form of semiotic violence against women in politics (VAWIP). Similarly, @stopfner2018 employed qualitative case studies to understand whether gendered heckling is shaped by specific parliamentary contexts or reflects broader parliamentary culture. She concludes that both institutional norms and transnational parliamentary cultures contribute to the gendered interruptions that undermine women’s process-oriented substantive representation [@rayment2024].
 
-In contrast, evidence from the Ecuadorian Congress presents a more nuanced picture. @vallejo2022 found that while women Members of Congress (MCs) were less likely to be interrupted than men, interruptions silenced women at a higher rate. However, they found that higher status and promotion to more prominent legislative roles could reverse some of the most negative effects of interruptions for women MCs. 
+In contrast, evidence from the Ecuadorian Congress presents a more nuanced picture. @vallejo2022 found that while women Members of Congress (MCs) were less likely to be interrupted than men, interruptions silenced women at a higher rate. However, they found that higher status and promotion to more prominent legislative roles could reverse some of the most negative effects of interruptions for women MCs.
 
 In the Canadian House of Commons, @whyte2017 found that gendered interruptions sharply increased during the 1990s, coinciding with an increase in the descriptive representation of women. Yet, @vandijk2025’s analysis of parliamentary speeches in the UK, Australia, and Croatia finds no gender difference in whether individual politicians get interrupted and that all politicians are less likely to be interrupted when more women participate in debates. Notably, they find that in Australia, the number of interruptions declined as the number of women serving in parliament increased.
 
 Research focused on committee meetings further illustrates the gendered nature of interruptions. In the Australian Senate Estimate hearings between 2006 and 2015, @richards2016 finds that male senators used interruptions to block other speakers or assert control over the floor, with women senators and witnesses receiving the most negative interruptions. Likewise, in US state legislatures, @kathlene1994 shows that as the number of women increases in committee hearings, male legislators responded with more interruptions and verbal aggression aimed at undermining women’s substantive participation in the policymaking process. Additionally, Miller and Sutherland found that women senators faced twice as many interruptions from male colleagues when speaking about “women’s issues,” with male senators employing an aggressive form of interruptions called “rapid-fire ‘interruption clusters’” to undermine and disrupt their speeches [-@miller2023, p. 103].
 
-Taken together, these studies of both parliamentary debates and committee meetings emphasize that even as the number of women elected increases, women politicians are often interrupted more frequently by male colleagues. This pattern largely holds across nations and institutional contexts, highlighting that interruptions undermine women politicians’ abilities to speak and act on behalf of women. By focusing on interruptions in the Australian House of Representatives from 1998 to 2025, our paper contributes to the literature by combining feminist institutionalism with quantitative methods to examine how interruptions function as a persistent, gendered constraint on women’s substantive representation in parliament.  
+Taken together, these studies of both parliamentary debates and committee meetings emphasize that even as the number of women elected increases, women politicians are often interrupted more frequently by male colleagues. This pattern largely holds across nations and institutional contexts, highlighting that interruptions undermine women politicians’ abilities to speak and act on behalf of women. By focusing on interruptions in the Australian House of Representatives from 1998 to 2025, our paper contributes to the literature by combining feminist institutionalism with quantitative methods to examine how interruptions function as a persistent, gendered constraint on women’s substantive representation in parliament.
 
 # Data and Methods
 
 We use longitudinal data to identify patterns over time, particularly as the descriptive representation of women in the House of Representatives increased from 22 percent in 1998 to 44.5 percent in 2022 [@ABS2025]. This period also includes important political milestones, such as Julia Gillard’s tenure as Australia’s first woman Prime Minister (2010 to 2013), including her 2012 sexism and misogyny speech, which drew attention to the gendered nature of Australian politics [@sawer2013].
+
+## Dataset Overview
+
+To perform this analysis, we use the digitized Australian Hansard corpus produced by @katz2025. This dataset captures all parliamentary proceedings in the House of Representatives from March 1998 to July 2025. As outlined in @katz2023, the dataset was generated using the XML transcripts available on the Parliament of Australia website. The parsed XML transcripts were reshaped, cleaned, enhanced, and validated using a combination of manual and automated tests, as well as external datasets available in the `AustralianPoliticians` and `ausPH` R packages [@auspol; @leslie_ausph_2024].
+
+The complete corpus contains a total of 22 variables and 647,852 rows. The earliest sitting day captured is 2 March 1998, and the most recent sitting day captured is 31 July 2025. While this dataset contains proceedings from both the Chamber and the Federation Chamber, for the purpose of this analysis, we filter the corpus to only include Chamber proceedings, resulting in a row count of 555,560. Choosing to exclude rows from the Federation Chamber is motivated largely by the facts that 1) not every sitting day has Federation Chamber proceedings, 2) these proceedings are often significantly shorter than the Chamber proceedings, and 3) the topics discussed in the Federation Chamber are restricted [@australia2018house]. As such, interjection data is far more sparse in the Federation Chamber proceedings, making it less suitable for modeling.
+
+The figure below contains a sample of 10 rows of the corpus, followed by a table defining each variable as outlined in @katz2023. Note that some variables that are available in the corpus are not included in this figure, as they are not relevant to this particular analysis.
+
+![10 rows of the Hansard corpus published by @katz2025](images/sample_speech.png){#fig-sample}
+
+| Name | Description |
+|--------------------|----------------------------------------------------|
+| date | Sitting day |
+| name | Name of the individual speaking as parsed from the Hansard XML |
+| displayName | Speaking member's name in a standardized format, based on @auspol |
+| order | Row number |
+| speech_no | Index of each speech made on the given sitting day, which includes all statements and interruptions |
+| page.no | Page number from Hansard XML |
+| time.stamp | Time stamp from Hansard XML |
+| name.id | Unique code of the speaker, defined in the Australian Parliamentary Handbook |
+| partyAbbrev | Speaking member's party abbreviation |
+| partyName | Speaking member's party name |
+| body | Statement text |
+| uniqueID | Unique identifier of the speaker, based on @auspol |
+| gender | Gender of the speaker |
+| interject | Interjection flag |
+
+: Description of variables in @fig-sample {tbl-colwidths="[15,85]"}
+---
+tbl-cap-location: bottom
+---
+
+@fig-sample contains all rows of speech number 109 from the proceedings on 27 March 2025. By looking at the first individual who makes a statement in that speech (i.e., the name associated with the minimum order number), we can identify the person whose turn it is to speak, which in @fig-sample is Rob Mitchell. Therefore, any statements made by members within that speech that are not attributed to Rob Mitchell (the member whose turn it is to speak), the Speaker, or the Deputy Speaker, are flagged as interjections in the `interject` column [@katz2023].
+
+## Summary Statistics
+
+Generating a variety of summary metrics and visualizations allows for a better understanding of the data at hand. In the filtered corpus which will be used for our analysis, there are a total of 1699 sitting days, with 429 unique speakers, 14 unique parties, and 173 unique electorates identified. A visual illustration of the number of sitting days per year is provided in @fig-sitting-days. Excluding the year 2025 which only includes proceedings up to July, on average, there are about 62 sitting days per year.
+
+![Number of sitting days per year](images/n_sitting_days_per_year.png){#fig-sitting-days width="500"}
+
+@fig-n-speakers-per-day shows the number of unique MPs who spoke on each sitting day in the corpus. The number of unique speakers per day ranges from 1 to 116, with a mean and standard deviation of about 76 and 13, respectively.
+
+![Number of unique speakers per day](images/n_unique_speakers_per_day.png){#fig-n-speakers-per-day width="500"}
+
+The number of speakers per year disaggregated by gender is illustrated in @fig-speakers-by-gender. Based on this plot it is clear that for every year since 1998, the number of female speakers has been smaller than the number of male speakers. However, this gender gap appears to be narrowing over time, indicating an improvement in the representation and inclusion of female politicians from 1998 to now.
+
+![Number of unique speakers per year by gender](images/n_speakers_per_yr_gender.png){#fig-speakers-by-gender width="500"}
+
+Of the 555,560 rows in this dataset, 99,919 are flagged as interjections, which amounts to about 18% of the total row count. The distribution of interjections by gender is summarized in the table below. The proportion of interjections made by to male speakers is 53.76% higher than that of female speakers. Also, 18.99% of flagged interjections are associated with speakers without a specified gender, most frequently attributed to "Opposition members", "Honourable members", or "Government members".
+
+| Gender | Count | Proportion |
+|--------|-------|------------|
+| Female | 13612 | 13.72%     |
+| Male   | 67330 | 67.38%     |
+| NA     | 18977 | 18.99%     |
+
+: Count and proportion of interjections by gender
+---
+tbl-cap-location: bottom
+---
+
+@fig-interject_day_gender illustrates the number of flagged interjections per day, disaggregated by gender. It appears that the number of interjections made by female MPs per day is generally much lower than that of male MPs across sitting days. Of course, these values will be influenced by the number of male and female MPs present, which as depicted in @fig-speakers-by-gender has changed significantly over time. However, despite this increase in female MPs present over time, the number of interjections being made by female MPs each day does not appear to have increased as a result.
+
+![Interjections by day and gender](images/n_interject_per_day_gender.png){#fig-interject_day_gender width="500" fig-pos="H"}
+
+@tbl-interject_by_party provides an overview of the interjections flagged by gender and political party. For 10 of the 14 parties represented, there is a larger proportion of interjections made by men than by women. This difference is particularly substantial for the first 7 rows of @tbl-interject_by_party, spanning from the Australian Labor Party up to and including the Nationalist Party.
+
+| Party Name                                 | Female        | Male           |
+|-------------------------------------|------------------|------------------|
+| Australian Labor Party                     | 9547 (20.44%) | 37157 (79.56%) |
+| Liberal Party of Australia                 | 3528 (12.3%)  | 25158 (87.7%)  |
+| The Nationals                              | 170 (4.99%)   | 3236 (95.01%)  |
+| Independent                                | 237 (21.84%)  | 848 (78.16%)   |
+| Katters Australian Party                   | 0 (0%)        | 348 (100%)     |
+| Australian Greens                          | 24 (8.03%)    | 275 (91.97%)   |
+| Nationalist Party                          | 0 (0%)        | 279 (100%)     |
+| Country Liberal Party (Northern Territory) | 69 (75.82%)   | 22 (24.18%)    |
+| Centre Alliance                            | 24 (100%)     | 0 (0%)         |
+| Nick Xenophon Team                         | 11 (100%)     | 0 (0%)         |
+| National Party of Australia (WA)           | 0 (0%)        | 4 (100%)       |
+| Christian Democratic Party                 | 0 (0%)        | 2 (100%)       |
+| Pauline Hansons One Nation                 | 2 (100%)      | 0 (0%)         |
+| Palmer United Party                        | 0 (0%)        | 1 (100%)       |
+
+: Count and proportion of interjections by gender and party {#tbl-interject_by_party}
+---
+tbl-cap-location: bottom
+---
+
+Finally, @tbl-speech_stats contains key metrics relating to the length of speeches in the corpus. Evidently, the range of speech length is quite large, spanning from 1 word to 117,296 words. Examples of speeches with very small word counts are stage directions such as "Bill presented by Mr Tollner." (on 16 June 2003), or one-word answers to questions in writing such as "Yes" or "No". The average word count per speech across the entire corpus is about 642, with a standard deviation of about 1093 words.
+
+| Metric             | Value     |
+|--------------------|-----------|
+| Average            | 641.56    |
+| Minimum            | 1.00      |
+| Maximum            | 117296.00 |
+| Standard Deviation | 1092.98   |
+
+: Average, standard deviation, minimum and maximum number of words per speech {#tbl-speech_stats}
+---
+tbl-cap-location: bottom
+---
+
+## Statistical Model
+
+Our aim is to explore how a given MP's gender and political party impact their frequency of being interrupted when it is their turn to speak in parliament. A Negative Binomial model will be used to perform this analysis. In line with @rayment2024, the model will have fixed effects for parliament number to capture contextual changes between parliaments, as well as an offset for the number of statements made by each MP to account for the fact that an MP who gives more speeches has more opportunities to be interrupted. This model design allows us to predict the number of interruptions that will be directed towards an MP with a certain set of characteristics in a single parliament.
+
+The model is denoted as follows:
+
+$$
+\begin{aligned}
+y_i &\sim \text{Negative Binomial}(\mu_i, \theta) \\
+\log(\mu_i) &= \beta_0 + \beta_1 \text{Women}_i+\beta_2\text{Party}_i+\beta_3 \text{Parliament}_i + \log(S_i)
+\end{aligned}
+$$
+
+where
+
+$$
+\begin{aligned}
+\mu_i &= \text{the expected number of interruptions for MP }i, \text{and}\\
+\theta &= \text{the dispersion parameter}
+\end{aligned}
+$$
+
+A Negative Binomial model was chosen largely because it is well suited for modeling count outcome variables, such as the number of interjections. While a Poisson model is also suitable for count outcomes, it assumes that all observations for a given set of predictors share one underlying rate, equal to both the mean and the variance. In this setting, this means the Poisson model assumes one rate of interruptions for all MPs with a given combination of values for parliament number, gender, and political party, and that any other variation observed is due solely to randomness. This assumption is not reasonable for this dataset because there are factors beyond the specified predictors which impact the rate at which an MP can be interrupted, such as their speaking style or seniority. For example, an MP who is aggressive or well-established in their political career would likely get interrupted more frequently than a newly elected MP who is more junior. Since these sources of heterogeneity in the rate of interruptions cannot be observed, the amount of variation present in the data will be higher than what would be expected under the Poisson model, and the assumption of an equal mean and variance will be violated. This situation is referred to as over-dispersion. The variance structure of the Negative Binomial model accounts for over-dispersion by including a dispersion parameter $\theta$, which allows the variance to exceed the mean, thereby accounting for unobserved differences in MPs. This leads to an improved model fit and more reliable estimates.
+
+## Data Wrangling
+
+To prepare the data for modeling, some reshaping and filtering was necessary. First, as mentioned, the corpus was filtered to only include Chamber proceedings. Rows with a missing `speech_no` value were then removed, since this variable is essential for reshaping the data. We identified that the only rows which had a null `speech_no` were stage directions, business starts, and questions in writing. Importantly, there were no interjections associated with rows with a missing speech number, so filtering them out is unlikely to meaningfully affect the analysis. <!--Further, the range of dates with a missing `speech_no` was 02 March 1998 to 24 March 2011, which as detailed in @katz2023, required a different parsing approach from newer transcripts due to significant XML structural differences. -->
+
+Next, a new variable called `parliament_num` was added to the corpus so that the correct parliament number associated with each sitting day was available, and could be used as a fixed effect in the model. The dates associated with each parliament number were based on data from @leslie_ausph_2024.
+
+Based on the model design described above, the input data must have one row for every MP per parliament, with their party affiliation, gender, number of interruptions received (outcome), and the number speaking turns (offset). For the offset, we count each row within a given speech separately. For example, in @fig-sample-speech-2, it is Mal Brough’s turn to speak, and during this speech he was interrupted 4 times by Adam Brandt. Although this is a single speech, it contributes 4 units to the offset because there were 4 separate instances in which Mal Brough had a speaking turn and could be interrupted.
+
+![All rows of speech number 97 from 2 December 2013](images/sample_speech_2.png){#fig-sample-speech-2}
+
+To prepare the model input data, the number of speaking turns was first computed. For each speech in the corpus, the MP whose turn it was to speak was identified as the individual with the smallest order number. Only rows corresponding to that MP were retained for each speech, and the total number of statements per MP, parliament, and party affiliation were then counted. This produced a dataframe with each MP's name, parliament number, party affiliation, and number of speaking turns.
+
+The number of interjections received by each MP was calculated by first identifying the MP whose turn it was to speak for each speech, as previously described. Then, rows corresponding to statements made by other MPs that were flagged as interjections were retained. The remaining rows were then used to count the total number of interjections received per MP, parliament, and party. This data table was then merged with the table of speaking turns, and any MPs with no recorded interjections in the corpus were assigned a value of zero.
+
+It is possible for an MP to change political parties within a single parliamentary period. In those cases, there is a separate row in the input data for each party affiliation. For example, Julia Banks quit the Liberal Party of Australia to join the Independent Party on 27 November 2018, during the forty-fifth parliament [@aus_handbook]. As such, the number of speaking turns and interjections received were counted separately for each combination of party and parliament number. Finally, the gender of each MP was added to the input table using the `gender` variable in the corpus. The first 15 rows of the resulting dataset are shown below in @fig-model_df.
+
+![First 15 rows of the model input dataset](images/model_input_df.png){#fig-model_df fig-pos="H" width="381"}
 
 # Analysis and Results
 

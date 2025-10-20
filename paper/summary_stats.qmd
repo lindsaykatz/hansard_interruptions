@@ -18,6 +18,38 @@ corpus <- read_parquet("../inputs/corpus_1998_to_2025.parquet")
 
 # filter for just chamber proceedings
 corpus <- corpus %>% filter(fedchamb_flag==0)
+
+# get parliament number variable
+parl_dates <- ausPH::getParliaments() %>% 
+  dplyr::select(PID, Name, DateOpening, ParliamentEnd) %>% 
+  # our corpus only goes back to the 38th parliament
+  filter(PID>=38)
+
+# add parliament number variable to corpus
+corpus <- corpus %>%
+  mutate(parliament_num = case_when(
+    date >= parl_dates$DateOpening[parl_dates$PID==38] & 
+      date <= parl_dates$ParliamentEnd[parl_dates$PID==38] ~ 38,
+    date >= parl_dates$DateOpening[parl_dates$PID==39] & 
+      date <= parl_dates$ParliamentEnd[parl_dates$PID==39] ~ 39,
+    date >= parl_dates$DateOpening[parl_dates$PID==40] & 
+      date <= parl_dates$ParliamentEnd[parl_dates$PID==40] ~ 40,
+    date >= parl_dates$DateOpening[parl_dates$PID==41] & 
+      date <= parl_dates$ParliamentEnd[parl_dates$PID==41] ~ 41,
+    date >= parl_dates$DateOpening[parl_dates$PID==42] & 
+      date <= parl_dates$ParliamentEnd[parl_dates$PID==42] ~ 42,
+    date >= parl_dates$DateOpening[parl_dates$PID==43] & 
+      date <= parl_dates$ParliamentEnd[parl_dates$PID==43] ~ 43,
+    date >= parl_dates$DateOpening[parl_dates$PID==44] & 
+      date <= parl_dates$ParliamentEnd[parl_dates$PID==44] ~ 44,
+    date >= parl_dates$DateOpening[parl_dates$PID==45] & 
+      date <= parl_dates$ParliamentEnd[parl_dates$PID==45] ~ 45,
+    date >= parl_dates$DateOpening[parl_dates$PID==46] & 
+      date <= parl_dates$ParliamentEnd[parl_dates$PID==46] ~ 46,
+    date >= parl_dates$DateOpening[parl_dates$PID==47] & 
+      date <= parl_dates$ParliamentEnd[parl_dates$PID==47] ~ 47,
+    date >= parl_dates$DateOpening[parl_dates$PID==48] ~ 48,
+    .default = NA))
 ```
 
 ## House of Reps Summary Statistics
@@ -63,6 +95,7 @@ left_join(
   mutate(Gender=str_to_sentence(Gender)) %>% 
   knitr::kable()
 ```
+
 ## Number of interjections by political party
 
 ```{r}
@@ -78,14 +111,26 @@ corpus %>%
 ## Number of interjections by political party and gender
 
 ```{r}
-corpus %>% 
-  filter(interject==1 & !is.na(partyName) & !is.na(gender)) %>% 
-  group_by(partyName, gender) %>% 
-  count() %>% 
-  ungroup() %>% 
-  pivot_wider(names_from = gender, values_from = n) %>% 
-  rename(`Party Name`=partyName, Female=female, Male=male) %>% 
-  mutate(across(c(Female, Male), ~ifelse(is.na(.x), 0, .x))) %>% 
+# corpus %>%
+#   filter(interject==1 & !is.na(partyName)) %>%
+#   group_by(partyName, gender) %>%
+#   count() %>%
+#   ungroup() %>%
+#   pivot_wider(names_from = gender, values_from = n) %>%
+#   rename(`Party Name`=partyName, Female=female, Male=male) %>%
+#   mutate(across(c(Female, Male), ~ifelse(is.na(.x), 0, .x))) %>%
+#   mutate("Total"=Female+Male) %>%
+#   write_csv("../paper/interject_by_party_and_gender.csv")
+
+corpus %>%
+  filter(interject==1 & !is.na(partyName)) %>%
+  group_by(partyName, gender) %>%
+  count() %>%
+  ungroup() %>%
+  pivot_wider(names_from = gender, values_from = n) %>%
+  rename(`Party Name`=partyName, Female=female, Male=male) %>%
+  mutate(across(c(Female, Male), ~ifelse(is.na(.x), 0, .x))) %>%
+  mutate("Total"=Female+Male) %>%
   knitr::kable()
 ```
 
@@ -98,7 +143,7 @@ speech_length_stats <- corpus %>%
   summarise(speech_length = sum(str_count(body, "\\s+")+1)) %>% 
   ungroup()
 
-speech_length_stats %>% 
+speech_length_stats_tbl <- speech_length_stats %>% 
   summarise(mean_speech_length = mean(speech_length, na.rm=T),
             min_speech_length = min(speech_length, na.rm=T),
             max_speech_length = max(speech_length, na.rm=T),
@@ -109,11 +154,14 @@ speech_length_stats %>%
            Metric=="min_speech_length" ~ "Minimum",
            Metric=="max_speech_length" ~ "Maximum",
            Metric=="mean_speech_length" ~ "Average",
-           Metric=="sd_speech_length" ~ "Standard Deviation")) %>% 
-  knitr::kable()
+           Metric=="sd_speech_length" ~ "Standard Deviation")) 
+
+write_csv(speech_length_stats_tbl, "../paper/speech_length_stats.csv")
+
+speech_length_stats_tbl %>% knitr::kable()
 ```
 
-## Number of days, per year for House of Reps
+## Number of sitting days, per year for House of Reps
 
 ```{r}
 corpus %>% 
@@ -126,24 +174,49 @@ corpus %>%
   ggplot(aes(x=year, y=n)) +
   geom_col() +
   theme_bw() +
-  theme(legend.position = "none") +
+  theme(legend.position = "none",
+        text = element_text(size=15)) +
   labs(x="Year", y="Number of sitting days",
        caption = "Note: Proceedings captured are from March 1998 to July 2025.")
+
+ggsave("../paper/n_sitting_days_per_year.png",  width=8, height=5)
 ```
 
 ## Number of unique speakers per day
 
 ```{r}
 corpus %>% 
-  filter(!is.na(uniqueID)) %>% 
-  distinct(date, uniqueID) %>% 
+  filter(!is.na(displayName)) %>% 
+  distinct(date, displayName) %>% 
   group_by(date) %>% 
   count() %>%
   ggplot(aes(x=date, y=n)) +
   geom_point(alpha=0.5) +
   theme_bw() +
-  theme(legend.position = "none") +
-  labs(x="Year", y="Number of unique speakers",
+  theme(legend.position = "none",
+        text = element_text(size=15)) +
+  labs(x="Day", y="Number of unique speakers",
+     #  title = "Number of unique speakers per day",
+       caption = "Note: Proceedings captured are from March 1998 to July 2025.")
+
+ggsave("../paper/n_unique_speakers_per_day.png", width=8, height=5)
+```
+
+## Number of unique women and men speakers, per day
+
+```{r}
+corpus %>% 
+  filter(!is.na(displayName)) %>% 
+  distinct(date, displayName, gender) %>% 
+  group_by(date, gender) %>% 
+  count() %>%
+  mutate(gender = case_when(gender=="female"~"Female",
+                       gender=="male"~"Male")) %>% 
+  ggplot(aes(x=date, y=n, color=gender)) +
+  geom_point(alpha=0.5) +
+  theme_bw() +
+  theme(text = element_text(size=15)) +
+  labs(x="Day", y="Number of unique speakers by gender", color="Gender",
      #  title = "Number of unique speakers per day",
        caption = "Note: Proceedings captured are from March 1998 to July 2025.")
 ```
@@ -153,7 +226,7 @@ corpus %>%
 ```{r}
 corpus %>% 
   mutate(year = as.numeric(str_extract(date, "^\\d{4}"))) %>% 
-  distinct(uniqueID, gender, year) %>% 
+  distinct(displayName, gender, year) %>% 
   filter(!is.na(gender)) %>% 
   mutate(gender = case_when(gender=="female"~"Female",
                        gender=="male"~"Male")) %>% 
@@ -163,9 +236,12 @@ corpus %>%
   geom_line() +
   geom_point() +
   theme_bw() +
+  theme(text=element_text(size=15)) +
   labs(x="Year", y="Number of unique speakers", color="Gender",
       # title = "Number of unique speakers by gender per year",
        caption = "Note: Proceedings captured are from March 1998 to July 2025.")
+
+ggsave("../paper/n_speakers_per_yr_gender.png", width=8, height=5)
 ```
 
 ## Number of unique speeches, per day for House of Reps
@@ -198,10 +274,13 @@ corpus %>%
   ggplot(aes(x=year, y=n)) +
   geom_col() +
   theme_bw() +
-  theme(legend.position = "none")+
+  theme(legend.position = "none",
+        text=element_text(size=15))+
   labs(x="Year", y="Number of interjections",
       # title = "Number of interjections per year",
        caption = "Note: Proceedings captured are from March 1998 to July 2025.")
+
+ggsave("../paper/n_interject_per_yr.png", width=8, height=5)
 ```
 
 ## Number of interjections by day for House of Reps
@@ -222,7 +301,7 @@ corpus %>%
        caption = "Note: Proceedings captured are from March 1998 to July 2025.")
 ```
 
-## Number of interjections by day, by gender for House of Reps
+## Number of interjections per day, by gender for House of Reps
 
 ```{r}
 corpus %>% 
@@ -236,8 +315,11 @@ corpus %>%
   ggplot(aes(x=date, y=n, color=gender)) +
   geom_point(alpha=0.5) +
   theme_bw() +
-  theme(legend.position = "none")+
-  labs(x="Date", y="Number of interjections",
+  theme(legend.position = "none",
+        text=element_text(size=15))+
+  labs(x="Day", y="Number of interjections",
        #title = "Number of interjections per day",
        caption = "Note: Proceedings captured are from March 1998 to July 2025.")
+
+ggsave("../paper/n_interject_per_day_gender.png", width=8, height=5)
 ```

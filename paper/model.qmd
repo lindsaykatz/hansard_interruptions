@@ -1,0 +1,141 @@
+---
+title: "Hansard Interruptions Model"
+format: pdf
+editor: visual
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+For this analysis, a negative binomial model will be used. The outcome of this model is the number of times a given Member of Parliament (MP) is interrupted when it is their turn to speak. We are interested in modelling the effect of gender and political affiliation on this outcome. In line with Rayment (2024), this model will have fixed effects for parliament number to capture contextual changes between parliaments (e.g., number of MPs present, number of female vs male MPs), as well as an offset for the number of statements made by each MP to account for the fact that an MP who gives more speeches has more opportunities to be interrupted. This model will allow us to predict the number of interruptions that will be directed towards an MP with a certain set of characteristics in a single parliament.
+
+$$
+y_i \sim \text{Negative Binomial}(\mu_i, \theta) \\
+\log(\mu_i) = \beta_0 + \beta_1 \text{Women}_i+\beta_2\text{Party}_i+\beta_3 \text{Parliament}_i + \log(S_i) \\
+~\\
+\text{where }
+\mu_i = \text{expected number of interruptions for MP }i, \text{and}\\
+\theta = \text{the overdispersion parameter}
+$$
+
+```{r environment setup}
+# import libraries
+library(tidyverse)
+library(arrow)
+library(MASS)
+library(modelsummary)
+```
+
+```{r data import}
+# data import
+corpus <- read_parquet("../inputs/corpus_1998_to_2025.parquet")
+
+# filter for just chamber proceedings
+corpus <- corpus %>% filter(fedchamb_flag==0)
+
+# get parliament number variable
+parl_dates <- ausPH::getParliaments() %>% 
+  dplyr::select(PID, Name, DateOpening, ParliamentEnd) %>% 
+  # our corpus only goes back to the 38th parliament
+  filter(PID>=38)
+
+# add parliament number variable to corpus
+corpus <- corpus %>%
+  mutate(parliament_num = case_when(
+    date >= parl_dates$DateOpening[parl_dates$PID==38] & 
+      date <= parl_dates$ParliamentEnd[parl_dates$PID==38] ~ 38,
+    date >= parl_dates$DateOpening[parl_dates$PID==39] & 
+      date <= parl_dates$ParliamentEnd[parl_dates$PID==39] ~ 39,
+    date >= parl_dates$DateOpening[parl_dates$PID==40] & 
+      date <= parl_dates$ParliamentEnd[parl_dates$PID==40] ~ 40,
+    date >= parl_dates$DateOpening[parl_dates$PID==41] & 
+      date <= parl_dates$ParliamentEnd[parl_dates$PID==41] ~ 41,
+    date >= parl_dates$DateOpening[parl_dates$PID==42] & 
+      date <= parl_dates$ParliamentEnd[parl_dates$PID==42] ~ 42,
+    date >= parl_dates$DateOpening[parl_dates$PID==43] & 
+      date <= parl_dates$ParliamentEnd[parl_dates$PID==43] ~ 43,
+    date >= parl_dates$DateOpening[parl_dates$PID==44] & 
+      date <= parl_dates$ParliamentEnd[parl_dates$PID==44] ~ 44,
+    date >= parl_dates$DateOpening[parl_dates$PID==45] & 
+      date <= parl_dates$ParliamentEnd[parl_dates$PID==45] ~ 45,
+    date >= parl_dates$DateOpening[parl_dates$PID==46] & 
+      date <= parl_dates$ParliamentEnd[parl_dates$PID==46] ~ 46,
+    date >= parl_dates$DateOpening[parl_dates$PID==47] & 
+      date <= parl_dates$ParliamentEnd[parl_dates$PID==47] ~ 47,
+    date >= parl_dates$DateOpening[parl_dates$PID==48] ~ 48,
+    .default = NA))
+```
+
+```{r filtering}
+# look at rows that have a missing speech_no
+corpus %>% 
+  filter(is.na(speech_no)) %>%
+  # they're all questions/answers or stage directions or business starts
+  filter(question==0 & answer==0 & !name %in% c("Business start","Stage direction"))
+
+# there are no rows with a missing speech number and an interjection
+corpus %>% filter(is.na(speech_no) & interject==1)
+
+# can safely filter those out for now
+corpus_filtered <- corpus %>% filter(!is.na(speech_no))
+
+# # drop rows where there is a missing gender
+# corpus_filtered <- corpus_filtered %>% filter(!is.na(gender))
+# 
+# # check if there is anyone with a missing displayName (shouldn't be)
+# corpus_filtered %>% filter(is.na(displayName)) %>% distinct(name)
+```
+
+```{r data prep}
+n_statements <- corpus_filtered %>% 
+  group_by(parliament_num, date, speech_no) %>% 
+  mutate(mp_turn_to_speak = displayName[order==min(order)]) %>% 
+  ungroup() %>% 
+  filter(displayName==mp_turn_to_speak) %>% 
+  filter(interject==0) %>% ### to fix manually later - if it is actually their turn they shouldn't be flagged as an interjection
+  group_by(mp_turn_to_speak, parliament_num, partyAbbrev) %>% 
+  count() %>% 
+  ungroup() %>% 
+  rename(name = mp_turn_to_speak,
+         n_statements = n)
+
+n_interjections <- corpus_filtered %>% 
+  group_by(parliament_num, date, speech_no) %>% 
+  mutate(mp_turn_to_speak = displayName[order==min(order)],
+         party_of_mp_in_turn = partyAbbrev[order==min(order)]) %>% 
+  ungroup() %>% 
+  filter(displayName!=mp_turn_to_speak) %>% 
+  filter(interject==1) %>% 
+  group_by(mp_turn_to_speak, parliament_num, party_of_mp_in_turn) %>% 
+  count() %>% 
+  ungroup() %>% 
+  rename(name = mp_turn_to_speak,
+         n_times_interjected = n,
+         partyAbbrev = party_of_mp_in_turn)
+
+model_df <- full_join(n_statements, n_interjections, 
+                      by=c("name", "parliament_num", "partyAbbrev")) %>% 
+  mutate(n_times_interjected = ifelse(is.na(n_times_interjected), 0, 
+                                      n_times_interjected))
+
+model_df <- left_join(model_df, corpus_filtered %>% 
+                        distinct(name=displayName, partyAbbrev, gender, parliament_num) %>%
+                        filter(!is.na(name)),
+                      by=c("name", "parliament_num", "partyAbbrev"))
+
+```
+
+```{r}
+mod<-glm.nb(n_times_interjected ~ factor(parliament_num)+partyAbbrev+gender+
+              offset(log(model_df$n_statements)), data=model_df, link=log)
+
+summary(mod)[["coefficients"]] %>% as_tibble() %>% 
+  mutate(name=summary(mod)[["coefficients"]] %>% rownames()) %>% 
+  mutate(exp_est = exp(Estimate)) %>% 
+  janitor::clean_names() %>% 
+  dplyr::select(name, estimate, exp_est, everything()) %>% 
+  mutate(across(c(estimate, pr_z, exp_est), ~ round(.x, 4)))
+
+modelsummary(mod)
+```

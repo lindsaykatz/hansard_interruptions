@@ -86,14 +86,14 @@ left_join(
   corpus %>% group_by(gender, interject) %>% 
   count() %>% ungroup() %>% filter(interject==1),
   corpus %>% group_by(gender, interject) %>% 
-  count() %>% ungroup() %>% pivot_wider(names_from = interject, values_from = n) %>% 
-  mutate(prop_interject = `1`/(`1`+`0`)*100) %>% 
-  select(-`0`, -`1`) %>% 
+  count() %>% ungroup() %>% filter(interject==1) %>% 
+  mutate(prop_interject = 100*(n/sum(n))) %>% 
   mutate(prop_interject=round(prop_interject,2),
-         prop_interject = paste0(prop_interject,"%"))) %>% 
+         prop_interject = paste0(prop_interject,"%")) ) %>% 
   select(Gender=gender, Count=n, Proportion=prop_interject) %>% 
   mutate(Gender=str_to_sentence(Gender)) %>% 
   knitr::kable()
+
 ```
 
 ## Number of interjections by political party
@@ -156,7 +156,7 @@ speech_length_stats_tbl <- speech_length_stats %>%
            Metric=="mean_speech_length" ~ "Average",
            Metric=="sd_speech_length" ~ "Standard Deviation")) 
 
-write_csv(speech_length_stats_tbl, "../paper/speech_length_stats.csv")
+#write_csv(speech_length_stats_tbl, "../paper/speech_length_stats.csv")
 
 speech_length_stats_tbl %>% knitr::kable()
 ```
@@ -179,7 +179,7 @@ corpus %>%
   labs(x="Year", y="Number of sitting days",
        caption = "Note: Proceedings captured are from March 1998 to July 2025.")
 
-ggsave("../paper/n_sitting_days_per_year.png",  width=8, height=5)
+#ggsave("../paper/images/n_sitting_days_per_year.png",  width=8, height=5)
 ```
 
 ## Number of unique speakers per day
@@ -199,7 +199,7 @@ corpus %>%
      #  title = "Number of unique speakers per day",
        caption = "Note: Proceedings captured are from March 1998 to July 2025.")
 
-ggsave("../paper/n_unique_speakers_per_day.png", width=8, height=5)
+#ggsave("../paper/images/n_unique_speakers_per_day.png", width=8, height=5)
 ```
 
 ## Number of unique women and men speakers, per day
@@ -241,7 +241,7 @@ corpus %>%
       # title = "Number of unique speakers by gender per year",
        caption = "Note: Proceedings captured are from March 1998 to July 2025.")
 
-ggsave("../paper/n_speakers_per_yr_gender.png", width=8, height=5)
+#ggsave("../paper/images/n_speakers_per_yr_gender.png", width=8, height=5)
 ```
 
 ## Number of unique speeches, per day for House of Reps
@@ -280,7 +280,7 @@ corpus %>%
       # title = "Number of interjections per year",
        caption = "Note: Proceedings captured are from March 1998 to July 2025.")
 
-ggsave("../paper/n_interject_per_yr.png", width=8, height=5)
+#ggsave("../paper/images/n_interject_per_yr.png", width=8, height=5)
 ```
 
 ## Number of interjections by day for House of Reps
@@ -321,5 +321,5 @@ corpus %>%
        #title = "Number of interjections per day",
        caption = "Note: Proceedings captured are from March 1998 to July 2025.")
 
-ggsave("../paper/n_interject_per_day_gender.png", width=8, height=5)
+#ggsave("../paper/images/n_interject_per_day_gender.png", width=8, height=5)
 ```

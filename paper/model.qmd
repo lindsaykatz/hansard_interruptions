@@ -65,6 +65,10 @@ corpus <- corpus %>%
       date <= parl_dates$ParliamentEnd[parl_dates$PID==47] ~ 47,
     date >= parl_dates$DateOpening[parl_dates$PID==48] ~ 48,
     .default = NA))
+
+# filter for just complete parliament periods (39-47)
+corpus <- corpus %>% 
+  filter(parliament_num >= 39 & parliament_num <= 47)
 ```
 
 ```{r filtering}
@@ -88,6 +92,7 @@ corpus_filtered <- corpus %>% filter(!is.na(speech_no))
 ```
 
 ```{r data prep}
+# compute number of speaking turns
 n_statements <- corpus_filtered %>% 
   group_by(parliament_num, date, speech_no) %>% 
   mutate(mp_turn_to_speak = displayName[order==min(order)]) %>% 
@@ -100,6 +105,7 @@ n_statements <- corpus_filtered %>%
   rename(name = mp_turn_to_speak,
          n_statements = n)
 
+# compute number of interjections
 n_interjections <- corpus_filtered %>% 
   group_by(parliament_num, date, speech_no) %>% 
   mutate(mp_turn_to_speak = displayName[order==min(order)],
@@ -114,21 +120,34 @@ n_interjections <- corpus_filtered %>%
          n_times_interjected = n,
          partyAbbrev = party_of_mp_in_turn)
 
+# join n_statements and n_interjections
 model_df <- full_join(n_statements, n_interjections, 
                       by=c("name", "parliament_num", "partyAbbrev")) %>% 
   mutate(n_times_interjected = ifelse(is.na(n_times_interjected), 0, 
                                       n_times_interjected))
 
+# add gender into model_df
 model_df <- left_join(model_df, corpus_filtered %>% 
                         distinct(name=displayName, partyAbbrev, gender, parliament_num) %>%
                         filter(!is.na(name)),
                       by=c("name", "parliament_num", "partyAbbrev"))
 
+# recode variables correctly
+model_df <- model_df %>% 
+  mutate(across(c(parliament_num, partyAbbrev, gender), ~ as.factor(.x))) %>% 
+  mutate(across(c(n_statements, n_times_interjected), ~ as.numeric(.x)))
+
+model_df$parliament_num <- relevel(model_df$parliament_num, ref="47")
+model_df$gender <- relevel(model_df$gender, ref="male")
+
 ```
 
+
 ```{r}
-mod<-glm.nb(n_times_interjected ~ factor(parliament_num)+partyAbbrev+gender+
-              offset(log(model_df$n_statements)), data=model_df, link=log)
+mod <- glm.nb(n_times_interjected ~ parliament_num + partyAbbrev + gender + offset(log(model_df$n_statements)), 
+              data=model_df, link=log)
+
+saveRDS(mod, file="model_results.rds")
 
 summary(mod)[["coefficients"]] %>% as_tibble() %>% 
   mutate(name=summary(mod)[["coefficients"]] %>% rownames()) %>% 

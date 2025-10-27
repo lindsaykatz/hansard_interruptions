@@ -8,17 +8,6 @@ execute:
   message: false
 ---
 
-For this analysis, a negative binomial model will be used. The outcome of this model is the number of times a given Member of Parliament (MP) is interrupted when it is their turn to speak. We are interested in modelling the effect of gender and political affiliation on this outcome. In line with Rayment (2024), this model will have fixed effects for parliament number to capture contextual changes between parliaments (e.g., number of MPs present, number of female vs male MPs), as well as an offset for the number of statements made by each MP to account for the fact that an MP who gives more speeches has more opportunities to be interrupted. This model will allow us to predict the number of interruptions that will be directed towards an MP with a certain set of characteristics in a single parliament.
-
-$$
-y_i \sim \text{Negative Binomial}(\mu_i, \theta) \\
-\log(\mu_i) = \beta_0 + \beta_1 \text{Women}_i+\beta_2\text{Party}_i+\beta_3 \text{Parliament}_i + \log(S_i) \\
-~\\
-\text{where }
-\mu_i = \text{expected number of interruptions for MP }i, \text{and}\\
-\theta = \text{the overdispersion parameter}
-$$
-
 ```{r environment setup}
 # import libraries
 library(tidyverse)
@@ -29,7 +18,7 @@ library(modelsummary)
 
 ```{r data import}
 # data import
-corpus <- read_parquet("../inputs/corpus_1998_to_2025.parquet")
+corpus <- read_parquet("../../inputs/corpus_1998_to_2025.parquet")
 
 # filter for just chamber proceedings
 corpus <- corpus %>% filter(fedchamb_flag==0)
@@ -135,16 +124,30 @@ model_df <- left_join(model_df, corpus_filtered %>%
 # recode variables correctly
 model_df <- model_df %>% 
   mutate(across(c(parliament_num, partyAbbrev, gender), ~ as.factor(.x))) %>% 
-  mutate(across(c(n_statements, n_times_interjected), ~ as.numeric(.x)))
+  mutate(across(c(n_statements, n_times_interjected), ~ as.numeric(.x))) %>% 
+  rename(party=partyAbbrev)
 
+# relevel parliament number and gender
 model_df$parliament_num <- relevel(model_df$parliament_num, ref="47")
 model_df$gender <- relevel(model_df$gender, ref="male")
+model_df$party <- relevel(model_df$party, ref="ALP")
 
+# export model_df
+write_csv(model_df, "model_input.csv")
 ```
 
+```{r}
+# check for overdispersion by fitting the poisson model and looking at the ratio of residual deviance and df
+poisson_mod <- glm(n_times_interjected ~ parliament_num + party + gender + offset(log(model_df$n_statements)), 
+              data=model_df,family = poisson(link="log"))
+
+poisson_mod$deviance/poisson_mod$df.residual
+
+# ratio is 18.73 - rule of thumb is it should be about 1 - indicating extreme overdispersion
+```
 
 ```{r}
-mod <- glm.nb(n_times_interjected ~ parliament_num + partyAbbrev + gender + offset(log(model_df$n_statements)), 
+mod <- glm.nb(n_times_interjected ~ parliament_num + party + gender + offset(log(model_df$n_statements)), 
               data=model_df, link=log)
 
 saveRDS(mod, file="model_results.rds")
@@ -157,4 +160,8 @@ summary(mod)[["coefficients"]] %>% as_tibble() %>%
   mutate(across(c(estimate, pr_z, exp_est), ~ round(.x, 4)))
 
 modelsummary(mod)
+```
+
+```{r}
+
 ```

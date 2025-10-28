@@ -57,7 +57,19 @@ corpus <- corpus %>%
 # filter for just complete parliament periods (39-47)
 corpus <- corpus %>% 
   filter(parliament_num >= 39 & parliament_num <= 47)
+
+# correction for some incorrect party affiliations that were identified
+corpus <- corpus %>% 
+  mutate(partyAbbrev = case_when(
+    partyAbbrev=="CLP" ~ "LIB",
+    partyAbbrev %in% c("NATS WA", "NAT") ~ "NP",
+    .default = partyAbbrev)) %>% 
+  mutate(partyName = case_when(
+      partyAbbrev=="LIB" ~ "Liberal Party of Australia",
+      partyAbbrev=="NP" ~ "The Nationals",
+      .default = partyName))
 ```
+
 
 ## Parliament Dates
 
@@ -74,7 +86,7 @@ parl_dates_tbl <- corpus %>%
          "Last Sitting Day" = max)
 
 knitr::kable(parl_dates_tbl)
-#write_csv(parl_dates_tbl, "tables/parliament_dates.csv")
+#write_csv(parl_dates_tbl, "../tables/parliament_dates.csv")
 ```
 
 ## Number of sitting days per parliament
@@ -88,7 +100,7 @@ n_days_per_parl <- corpus %>%
   rename("Parliament Number" = parliament_num)
 
 knitr::kable(n_days_per_parl)
-#write_csv(n_days_per_parl, "tables/n_sitting_days_per_parliament.csv")
+#write_csv(n_days_per_parl, "../tables/n_sitting_days_per_parliament.csv")
 ```
 
 ## Sample of 10 rows for figure 1
@@ -99,15 +111,15 @@ sample_20250327 <- corpus %>%
   select(date, name, order, speech_no, partyName, body, gender, interject)
 
 knitr::kable(sample_20250327)
-#write_csv(sample_20250327, "tables/corpus_sample_2025-03-27.csv")
+#write_csv(sample_20250327, "../tables/corpus_sample_2025-03-27.csv")
 ```
 
 ## Example of speaking turns
 
 ```{r}
-# corpus %>% filter(date=="2013-02-14" & speech_no==74) %>% 
-#   select(date, name, order, speech_no, partyName, body, gender, interject) %>% 
-#   write_csv("tables/corpus_sample_speaking_turns.csv")
+# corpus %>% filter(date=="2013-02-14" & speech_no==74) %>%
+#   select(date, name, order, speech_no, partyName, body, gender, interject) %>%
+#   write_csv("../tables/corpus_sample_speaking_turns.csv")
 ```
 
 ## House of Reps Summary Statistics
@@ -242,7 +254,7 @@ interject_by_gender_party <- corpus %>%
 
 knitr::kable(interject_by_gender_party)
 
-write_csv(interject_by_gender_party, "../tables/interject_by_gender_and_party.csv")
+# write_csv(interject_by_gender_party, "../tables/interject_by_gender_and_party.csv")
 ```
 
 ```{r}
@@ -280,7 +292,7 @@ speech_length_stats_tbl <- speech_length_stats %>%
            Metric=="mean_speech_length" ~ "Average",
            Metric=="sd_speech_length" ~ "Standard Deviation")) 
 
-#write_csv(speech_length_stats_tbl, "tables/speech_length_stats.csv")
+#write_csv(speech_length_stats_tbl, "../tables/speech_length_stats.csv")
 
 speech_length_stats_tbl %>% knitr::kable()
 ```
@@ -306,7 +318,7 @@ corpus %>%
    theme(axis.title.x = element_text(hjust = 0.5),
          axis.title.y = element_text(hjust = 0.5))
 
-ggsave("../paper/images/n_sitting_days_per_year.png",  width=8, height=5)
+ggsave("../images/n_sitting_days_per_year.png",  width=8, height=5)
 ```
 
 ## Number of unique speakers per day
@@ -329,7 +341,7 @@ corpus %>%
    theme(axis.title.x = element_text(hjust = 0.5),
          axis.title.y = element_text(hjust = 0.5))
 
-#ggsave("../paper/images/n_unique_speakers_per_day.png", width=8, height=5)
+ggsave("../images/n_unique_speakers_per_day.png", width=8, height=5)
 ```
 
 ## Number of unique women and men speakers, per day
@@ -354,7 +366,7 @@ corpus %>%
          axis.title.y = element_text(hjust = 0.5)) +
   scale_color_manual(values=c("#66CC99", "#B0AFFF"))
 
-ggsave("../paper/images/n_unique_speakers_per_day_gender.png", width=8, height=5)
+ggsave("../images/n_unique_speakers_per_day_gender.png", width=8, height=5)
 ```
 
 ## Number of unique women and men speakers, per year
@@ -381,7 +393,7 @@ corpus %>%
          axis.title.y = element_text(hjust = 0.5)) +
   scale_color_manual(values=c("#66CC99", "#B0AFFF"))
 
-#ggsave("../paper/images/n_speakers_per_yr_gender.png", width=8, height=5)
+ggsave("../images/n_speakers_per_yr_gender.png", width=8, height=5)
 ```
 
 ## Number of unique speeches, per day for House of Reps
@@ -426,7 +438,7 @@ corpus %>%
    theme(axis.title.x = element_text(hjust = 0.5),
          axis.title.y = element_text(hjust = 0.5))
 
-ggsave("../paper/images/n_interject_per_yr.png", width=8, height=5)
+ggsave("../images/n_interject_per_yr.png", width=8, height=5)
 ```
 
 ## Number of interjections by day for House of Reps
@@ -538,4 +550,3 @@ ggplot(women_mps_stats_plot, aes(x=Parliament)) +
         axis.title.y.right = element_text(hjust = 0.5)) +
   scale_x_continuous(breaks=c(39,40,41,42,43,44,45,46,47))
 ```
-

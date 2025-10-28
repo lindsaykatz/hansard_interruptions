@@ -294,7 +294,7 @@ name,parliament_num,party,n_statements,n_times_interjected,gender
 "Crean, Simon",42,ALP,98,28,male
 "Crean, Simon",43,ALP,170,50,male
 "Crewther, Chris",45,LIB,146,5,male
-"Crook, Tony",43,NATS WA,67,2,male
+"Crook, Tony",43,NP,67,2,male
 "Crosio, Janice",39,ALP,113,8,female
 "Crosio, Janice",40,ALP,108,18,female
 "D'Ath, Yvette",42,ALP,91,7,female
@@ -501,8 +501,8 @@ name,parliament_num,party,n_statements,n_times_interjected,gender
 "Griffin, Alan",42,ALP,113,31,male
 "Griffin, Alan",43,ALP,21,2,male
 "Griffin, Alan",44,ALP,41,5,male
-"Griggs, Natasha",43,CLP,108,14,female
-"Griggs, Natasha",44,CLP,236,48,female
+"Griggs, Natasha",43,LIB,108,14,female
+"Griggs, Natasha",44,LIB,236,48,female
 "Haase, Barry",39,LIB,86,8,male
 "Haase, Barry",40,LIB,90,10,male
 "Haase, Barry",41,LIB,73,2,male
@@ -745,9 +745,9 @@ name,parliament_num,party,n_statements,n_times_interjected,gender
 "Lindsay, Peter",40,LIB,158,43,male
 "Lindsay, Peter",41,LIB,181,38,male
 "Lindsay, Peter",42,LIB,160,58,male
-"Littleproud, David",45,NAT,159,29,male
-"Littleproud, David",46,NAT,274,56,male
-"Littleproud, David",47,NAT,176,41,male
+"Littleproud, David",45,NP,159,29,male
+"Littleproud, David",46,NP,274,56,male
+"Littleproud, David",47,NP,176,41,male
 "Liu, Gladys",46,LIB,130,4,female
 "Livermore, Kirsten",39,ALP,64,10,female
 "Livermore, Kirsten",40,ALP,50,16,female
@@ -1252,8 +1252,8 @@ name,parliament_num,party,n_statements,n_times_interjected,gender
 "Ticehurst, Ken",40,LIB,76,7,male
 "Ticehurst, Ken",41,LIB,100,9,male
 "Tink, Kylea",47,IND,225,14,female
-"Tollner, Dave",40,CLP,89,17,male
-"Tollner, Dave",41,CLP,106,12,male
+"Tollner, Dave",40,LIB,89,17,male
+"Tollner, Dave",41,LIB,106,12,male
 "Trevor, Chris",42,ALP,92,1,male
 "Truss, Warren",39,NP,327,141,male
 "Truss, Warren",40,NP,215,61,male

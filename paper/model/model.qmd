@@ -60,6 +60,19 @@ corpus <- corpus %>%
   filter(parliament_num >= 39 & parliament_num <= 47)
 ```
 
+```{r}
+# correction for some incorrect party affiliations that were identified
+corpus <- corpus %>% 
+  mutate(partyAbbrev = case_when(
+    partyAbbrev=="CLP" ~ "LIB",
+    partyAbbrev %in% c("NATS WA", "NAT") ~ "NP",
+    .default = partyAbbrev)) %>% 
+  mutate(partyName = case_when(
+      partyAbbrev=="LIB" ~ "Liberal Party of Australia",
+      partyAbbrev=="NP" ~ "The Nationals",
+      .default = partyName))
+```
+
 ```{r filtering}
 # look at rows that have a missing speech_no
 corpus %>% 
@@ -143,7 +156,7 @@ poisson_mod <- glm(n_times_interjected ~ parliament_num + party + gender + offse
 
 poisson_mod$deviance/poisson_mod$df.residual
 
-# ratio is 18.73 - rule of thumb is it should be about 1 - indicating extreme overdispersion
+# ratio is 18.72 - rule of thumb is it should be about 1 - indicating extreme overdispersion
 ```
 
 ```{r}
@@ -159,9 +172,7 @@ summary(mod)[["coefficients"]] %>% as_tibble() %>%
   dplyr::select(name, estimate, exp_est, everything()) %>% 
   mutate(across(c(estimate, pr_z, exp_est), ~ round(.x, 4)))
 
+mod$deviance/mod$df.residual
+
 modelsummary(mod)
-```
-
-```{r}
-
 ```

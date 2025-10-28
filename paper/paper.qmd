@@ -92,6 +92,9 @@ read_csv("tables/corpus_sample_2025-03-27.csv", show_col_types = F) %>%
   select(-date) %>% 
   mutate(body = ifelse(str_count(body, "\\w+")>10, 
                        paste0(word(body, end=10), "..."), body)) %>% 
+      mutate(gender = case_when(gender=="female" ~ "woman",
+                              gender=="male" ~ "man",
+                              .default = gender)) %>% 
   kableExtra::kbl(booktabs = TRUE, linesep = "") %>% 
   kableExtra::kable_styling(
     latex_options = c("scale_down"),
@@ -104,15 +107,15 @@ read_csv("tables/corpus_sample_2025-03-27.csv", show_col_types = F) %>%
   kableExtra::column_spec(6:7, width="1cm")
 ```
 
-The variables in  @tbl-sample are:
+The variables in @tbl-sample are:
 
-- `name`: Name of the individual speaking as parsed from the Hansard XML.
-- `order`: Row number
-- `speech_no`: Index of each speech made on the given sitting day, which includes all statements and interruptions
-- `partyName`: Speaking member's party name
-- `body`: Statement text
-- `gender`: Gender of the speaker
-- `interject`: Interjection flag
+-   `name`: Name of the individual speaking as parsed from the Hansard XML.
+-   `order`: Row number
+-   `speech_no`: Index of each speech made on the given sitting day, which includes all statements and interruptions
+-   `partyName`: Speaking member's party name
+-   `body`: Statement text
+-   `gender`: Gender of the speaker
+-   `interject`: Interjection flag
 
 The value for gender was assigned only for rows with an individual MP's name in the `name` column. Rows with body text containing a business start or stage direction are attributed as such, and cannot be assigned a gender. Also, there are over 18,000 rows in the corpus attributed to one or multiple opposition members, government members, or honourable members, where no gender can be assigned. Other examples of statements which cannot be assigned a gender include those made by The Speaker, The Deputy Speaker, or The Acting Speaker. In all of these cases, the gender value is left as missing.
 
@@ -120,7 +123,7 @@ Interjections within parliamentary proceedings can take different forms [@wissik
 
 ## Summary statistics
 
-In our dataset there are a total of 1,651 sitting days, with 391 unique speakers, 12 unique parties, and 170 unique electorates. A summary of the number of sitting days per parliament is provided in @tbl-sitting-days. On average, there are 183 sitting days per parliament.
+In our dataset there are a total of 1,651 sitting days, with 391 unique speakers, 9 unique parties, and 170 unique electorates. A summary of the number of sitting days per parliament is provided in @tbl-sitting-days. On average, there are 183 sitting days per parliament.
 
 ```{r}
 #| tbl-cap: "Number of sitting days per parliament"
@@ -143,6 +146,9 @@ Of the 535,961 rows in this dataset, 95,522 are flagged as interjections, which 
 #| label: tbl-interject-gender
 
 read_csv("tables/interject_by_gender.csv", show_col_types = F) %>% 
+  mutate(Gender = case_when(Gender=="Female" ~ "Women",
+                            Gender=="Male" ~ "Men",
+                            .default = Gender)) %>% 
   kableExtra::kbl(booktabs = TRUE, linesep = "")
 ```
 
@@ -150,10 +156,10 @@ read_csv("tables/interject_by_gender.csv", show_col_types = F) %>%
 
 ![Daily rate of interjections by gender](images/n_interject_per_day_gender.png){#fig-interject_day_gender width="500" fig-pos="H"}
 
-@tbl-interject_by_party provides an overview of the interjections flagged by gender and political party. The values in the table capture the rate of interjections per MP for each gender and party. This rate is equal to the total number of interjections divided by the total number of unique MPs for the given gender and party. The percentages in parentheses represent the total share of interjections by gender in that party. For five of the six parties with both men and women MPs, the rate and share of interjections for men is notably higher than those of women.
+@tbl-interject_by_party provides an overview of the interjections flagged by gender and political party. The values in the table capture the rate of interjections per MP for each gender and party. This rate is equal to the total number of interjections divided by the total number of unique MPs for the given gender and party. The percentages in parentheses represent the total share of interjections by gender in that party. For all five parties with both men and women MPs, the rate and share of interjections for men is notably higher than those of women.
 
 ```{r}
-#| tbl-cap: "Interjections per MP by gender and party, with share of total interjections in parentheses"
+#| tbl-cap: "Rate of interjections per MP by gender and party, with share of total interjections in parentheses"
 #| tbl-cap-location: bottom 
 #| label: tbl-interject_by_party
 
@@ -174,7 +180,7 @@ read_csv("tables/speech_length_stats.csv", show_col_types = F) %>%
 
 ## Analysis dataset
 
-To prepare the data for our purposes, some reshaping and filtering was necessary. Firstly, rows with a missing `speech_no` value were removed, since this variable is essential for preparing the data for modeling. We identified that the only rows which had a missing `speech_no` were stage directions, business starts, and questions in writing. There were no interjections associated with rows with a missing speech number, so filtering them out is unlikely to meaningfully affect the analysis. Next, a new variable called `parliament_num` was added to the corpus so that the correct parliament number associated with each sitting day was available, and could be used as a fixed effect in the model.
+To prepare the data for our purposes, some reshaping and filtering was necessary. Firstly, rows with a missing `speech_no` value were removed, since this variable is essential for preparing the data for modeling. We identified that the only rows which had a missing `speech_no` were stage directions, business starts, and questions in writing. There were no interjections associated with rows with a missing speech number, so filtering them out is unlikely to meaningfully affect the analysis. A new variable called `parliament_num` was then added to the corpus so that the correct parliament number associated with each sitting day was available, and could be used as a fixed effect in the model. <!-- TODO: add something about how we fixed the parties of Griggs, Tollner, Crook and Littleproud -->
 
 Based on the model design, detailed in the next section, the input data must have one row for every MP per parliament, with their party affiliation, gender, number of interruptions received (outcome), and the number of speaking turns (offset). For the offset, we count each row within a given speech separately as a speaking turn. For example, in @tbl-sample-speech-2, it is Craig Emerson's turn to speak, and during this speech he was interrupted five times. After making his first statement, he was interrupted by both Bronwyn Bishop and Government members. Once the Speaker called "Order!" and he continued speaking, he was interrupted by Luke Simpkins. The Speaker spoke again, and then Craig Emerson spoke for the third time, after which he was interrupted by Opposition members, and finally the Speaker gave the floor to the Manager of Opposition Business to begin a new speech. Although this all happened within a single speech in which Craig Emerson had the floor, it contributes three units (i.e., speaking turns) to the offset because there were three separate instances in which Craig Emerson had a speaking turn and could be interrupted. This would also contribute five units (i.e., interjections) to the outcome count, because Craig Emerson was interrupted five times during this speech.
 
@@ -187,6 +193,9 @@ read_csv("tables/corpus_sample_speaking_turns.csv", show_col_types = F) %>%
   select(-date) %>% 
   mutate(body = ifelse(str_count(body, "\\w+")>10, 
                        paste0(word(body, end=10), "..."), body)) %>% 
+    mutate(gender = case_when(gender=="female" ~ "woman",
+                              gender=="male" ~ "man",
+                              .default = gender)) %>% 
   kableExtra::kbl(booktabs = TRUE, linesep = "") %>% 
   kableExtra::kable_styling(
     latex_options = c("scale_down"),
@@ -236,7 +245,7 @@ The model is denoted as follows:
 $$
 \begin{aligned}
 y_i &\sim \text{Negative Binomial}(\mu_i, \theta) \\
-\log(\mu_i) &= \beta_0 + \beta_1 \text{Woman}_i  + \sum_{k=1}^8 \beta_k \text{Parliament}_{ki}+ \sum_{j=1}^{11} \beta_j \text{Party}_{ji} + \log(S_i)
+\log(\mu_i) &= \beta_0 + \beta_1 \text{Woman}_i  + \sum_{k=1}^8 \beta_k \text{Parliament}_{ki}+ \sum_{j=1}^{8} \beta_j \text{Party}_{ji} + \log(S_i)
 \end{aligned}
 $$
 
@@ -246,14 +255,14 @@ where
 -   $\theta$ is the dispersion parameter
 -   $\text{Woman}_i$ is a dummy variable equal to $1$ if MP $i$ is a woman, and $0$ otherwise
 -   $\text{Parliament}_{ki}$ is a dummy variable equal to $1$ if MP $i$ is part of parliament $k$, and $0$ otherwise. There are 9 unique parliamentary periods in the corpus, and the sum ranges from $1$ to $8$ because the $9^{th}$ acts as the reference category
--   $\text{Party}_{ji}$ is a categorical variable that reflects the party $j$ that MP $i$ is a member of in the specified parliament. There are 12 unique party affiliations in the corpus, and the sum ranges from $1$ to $11$ because the $12^{th}$ acts as the reference category
+-   $\text{Party}_{ji}$ is a categorical variable that reflects the party $j$ that MP $i$ is a member of in the specified parliament. There are 9 unique party affiliations in the corpus, and the sum ranges from $1$ to $8$ because the $9^{th}$ acts as the reference category
 -   $\log(\text{S}_i)$ is the offset term for the number of speaking turns had by MP $i$
 
 # Analysis and results
 
 This analysis was performed using R Statistical Software, version 4.3.3 [@r]. After preparing the model input data as described, the `glm.nb` function from the `MASS` package was used to fit a Negative Binomial regression model with a log link function, as defined in the previous section [@MASS]. The parliament number, party abbreviation and gender variables were all coded as factors to ensure they were correctly interpreted as categorical variables in the model.
 
-This model output has a total of 21 coefficients: 1 intercept coefficient, 8 parliament number coefficients where the reference category is parliament number 47, 11 party coefficients where the reference category is ALP (Australian Labor Party), and 1 coefficient for the woman variable. Since the outcome of the Negative Binomial model is on the log scale, exponentiating the coefficient values yields rate ratios which are easier to interpret. For categorical variables, rate ratios capture the multiplicative effect of a variable on the expected count of interjections, relative to it's reference category. A rate ratio which is greater than 1 implies that the expected count of interjections is higher than the reference category, and a rate ratio less than 1 indicates that the expected count of interjections is lower than the reference category. This effect can also be expressed in terms of percentages. For instance, a rate ratio of 0.75 corresponds to a 25 per cent lower expected count compared to the reference category, while a rate ratio of 1.30 corresponds to a 30 per cent higher expected count compared to the reference category. The coefficients, exponentiated coefficients (i.e., rate ratios), and p-values are summarized in @tbl-model-coeffs. @tbl-parties in the Appendix provides the full party name associated with each abbreviation.
+This model output has a total of 18 coefficients: 1 intercept coefficient, 8 parliament number coefficients where the reference category is parliament number 47, 8 party coefficients where the reference category is ALP (Australian Labor Party), and 1 coefficient for the woman variable. Since the outcome of the Negative Binomial model is on the log scale, exponentiating the coefficient values yields rate ratios which are easier to interpret. For categorical variables, rate ratios capture the multiplicative effect of a variable on the expected count of interjections, relative to it's reference category. A rate ratio which is greater than 1 implies that the expected count of interjections is higher than the reference category, and a rate ratio less than 1 indicates that the expected count of interjections is lower than the reference category. This effect can also be expressed in terms of percentages. For instance, a rate ratio of 0.75 corresponds to a 25 per cent lower expected count compared to the reference category, while a rate ratio of 1.30 corresponds to a 30 per cent higher expected count compared to the reference category. The coefficients, exponentiated coefficients (i.e., rate ratios), and p-values are summarized in @tbl-model-coeffs. @tbl-parties in the Appendix provides the full party name associated with each abbreviation.
 
 ```{r, message=FALSE, warning=FALSE}
 #| tbl-cap: "Regression Results"
@@ -271,12 +280,13 @@ broom::tidy(model_output) %>%
   kableExtra::kbl(booktabs = TRUE, linesep = "")
 ```
 
-The `parliament_num` coefficients capture how the expected number of interjections in one parliament compares to that in the 47th parliament (the reference category), holding gender and party constant. Since the rate ratio for the 39th parliament is 1.50, this indicates that MPs in parliament 39 are expected to be interrupted 1.5 times (or 50%) more than MPs in parliament 47. In contrast, this output tells us that an MP in parliament 46 is expected to be interrupted about 32.4 per cent times less than an MP in parliament 47 (Rate Ratio = 0.676). Interestingly, the rate ratios for earlier parliaments (i.e., 39 through 44) are all greater than 1, while the rate ratios for later parliaments (i.e., 45 and 46) are less than 1. This suggests temporal changes in the frequency of being interrupted, holding gender and party constant. The p-value column indicates that the coefficients for parliaments 39, 40, 41, 42, and 46 are statistically significant at the level of 0.05.
+The `parliament_num` coefficients capture how the expected number of interjections in one parliament compares to that in the 47th parliament (the reference category), holding gender and party constant. Since the rate ratio for the 39th parliament is $\approx$ 1.5, this indicates that MPs in parliament 39 are expected to be interrupted 1.5 times (or 50%) more than MPs in parliament 47. In contrast, this output tells us that an MP in parliament 46 is expected to be interrupted about 32.4 per cent times less than an MP in parliament 47 (Rate Ratio = 0.676). Interestingly, the rate ratios for earlier parliaments (i.e., 39 through 44) are all greater than 1, while the rate ratios for later parliaments (i.e., 45 and 46) are less than 1. This suggests temporal changes in the frequency of being interrupted, holding gender and party constant. The p-value column indicates that the coefficients for parliaments 39, 40, 41, 42, and 46 are statistically significant at the level of 0.05.
 
-The estimated rate ratios for `party` range from 0.149 for NATS WA to 1.216 for NAT. The only two parties with rate ratios greater than 1 are NAT and PUP, however, both coefficients are not statistically significant (p = 0.605 and p = 0.930, respectively). This suggests that, after controlling for gender and parliament, MPs from these parties are not significantly more likely to be interrupted than those from the reference category (ALP). For the other 9 parties, the rate ratios are below 1, indicating a lower expected number of interjections compared to MPs in ALP, holding gender and parliament constant. Among these, the coefficients for CA, IND, NATS WA, and NXT are statistically significant (p \< 0.05). For example, the estimated rate ratio for IND is 0.638, implying that an MP in the Independent party is expected to experience about 36 per cent fewer interruptions than an MP in the Australian Labor Party, controlling for gender and parliament.
+The estimated rate ratios for `party` range from 0.172 for NXT to 1.062 for PUP. The only party with rate ratio greater than 1 is PUP, however this coefficient is not statistically significant (p $\approx$ 0.92). This suggests that after controlling for gender and parliament, MPs from PUP are not significantly more likely to be interrupted than those from the reference category party (ALP). 
 
-Finally, the `gender` rate ratio indicates that a woman MP is expected to be interrupted about 26.7 per cent less than a man MP holding party and parliament constant. The associated p-value ($\approx 0$) implies that this effect is highly significant.
+For the other 7 parties, the rate ratios are below 1, indicating a lower expected number of interjections compared to MPs in ALP, holding gender and parliament constant. Among these, the coefficients for CA, IND, and NXT are statistically significant (p < 0.05). For example, the estimated rate ratio for IND is 0.639, implying that an MP in the Independent party is expected to experience about 36 per cent fewer interruptions than an MP in the Australian Labor Party, controlling for gender and parliament.
 
+Finally, the `gender` rate ratio indicates that a woman MP is expected to be interrupted about 26.8 per cent less than a man MP holding party and parliament constant. The associated p-value ($\approx 0$) implies that this effect is highly significant.
 
 # Conclusion
 
@@ -300,24 +310,28 @@ We thank Monica Alexander for helpful comments.
 | 46                | 02 July 2019      | 31 March 2022     |
 | 47                | 26 July 2022      | 27 March 2025     |
 
-: Earliest and latest sitting days in the corpus for each parliament {#tbl-parl_dates} 
+: Earliest and latest sitting days in the corpus for each parliament {#tbl-parl_dates}
+---
+tbl-cap-location: bottom
+---
+
 
 | Party Abbreviation | Party Name                                 |
 |--------------------|--------------------------------------------|
 | ALP                | Australian Labor Party                     |
 | CA                 | Centre Alliance                            |
-| CLP                | Country Liberal Party (Northern Territory) |
 | GRN                | Australian Greens                          |
 | IND                | Independent                                |
 | KAP                | Katters Australian Party                   |
 | LIB                | Liberal Party of Australia                 |
-| NAT                | Nationalist Party                          |
-| NATS WA            | National Party of Australia (WA)           |
 | NP                 | The Nationals                              |
 | NXT                | Nick Xenophon Team                         |
 | PUP                | Palmer United Party                        |
 
-: Abbreviations and full names of Australian political parties {#tbl-parties} 
+: Abbreviations and full names of Australian political parties {#tbl-parties}
+---
+tbl-cap-location: bottom
+---
 
 \newpage
 

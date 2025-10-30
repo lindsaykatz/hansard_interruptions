@@ -19,7 +19,9 @@ library(modelsummary)
 ```{r data import}
 # data import
 corpus <- read_parquet("../../inputs/corpus_1998_to_2025.parquet")
+```
 
+```{r data cleaning}
 # filter for just chamber proceedings
 corpus <- corpus %>% filter(fedchamb_flag==0)
 
@@ -58,9 +60,7 @@ corpus <- corpus %>%
 # filter for just complete parliament periods (39-47)
 corpus <- corpus %>% 
   filter(parliament_num >= 39 & parliament_num <= 47)
-```
 
-```{r}
 # correction for some incorrect party affiliations that were identified
 corpus <- corpus %>% 
   mutate(partyAbbrev = case_when(
@@ -71,9 +71,7 @@ corpus <- corpus %>%
       partyAbbrev=="LIB" ~ "Liberal Party of Australia",
       partyAbbrev=="NP" ~ "The Nationals",
       .default = partyName))
-```
 
-```{r filtering}
 # look at rows that have a missing speech_no
 corpus %>% 
   filter(is.na(speech_no)) %>%
@@ -85,15 +83,9 @@ corpus %>% filter(is.na(speech_no) & interject==1)
 
 # can safely filter those out for now
 corpus_filtered <- corpus %>% filter(!is.na(speech_no))
-
-# # drop rows where there is a missing gender
-# corpus_filtered <- corpus_filtered %>% filter(!is.na(gender))
-# 
-# # check if there is anyone with a missing displayName (shouldn't be)
-# corpus_filtered %>% filter(is.na(displayName)) %>% distinct(name)
 ```
 
-```{r data prep}
+```{r reshaping}
 # compute number of speaking turns
 n_statements <- corpus_filtered %>% 
   group_by(parliament_num, date, speech_no) %>% 
@@ -121,7 +113,9 @@ n_interjections <- corpus_filtered %>%
   rename(name = mp_turn_to_speak,
          n_times_interjected = n,
          partyAbbrev = party_of_mp_in_turn)
+```
 
+```{r prep model_df}
 # join n_statements and n_interjections
 model_df <- full_join(n_statements, n_interjections, 
                       by=c("name", "parliament_num", "partyAbbrev")) %>% 
@@ -133,6 +127,15 @@ model_df <- left_join(model_df, corpus_filtered %>%
                         distinct(name=displayName, partyAbbrev, gender, parliament_num) %>%
                         filter(!is.na(name)),
                       by=c("name", "parliament_num", "partyAbbrev"))
+
+# identify parties with just one MP
+model_df %>% 
+  group_by(partyAbbrev) %>% 
+  summarise(only_one_mp = n_distinct(name))
+
+# filter out parties with just one MP
+model_df <- model_df %>% 
+  filter(!partyAbbrev %in% c("CA","NXT","PUP","KAP"))
 
 # recode variables correctly
 model_df <- model_df %>% 
@@ -149,30 +152,26 @@ model_df$party <- relevel(model_df$party, ref="ALP")
 write_csv(model_df, "model_input.csv")
 ```
 
-```{r}
+```{r poisson}
 # check for overdispersion by fitting the poisson model and looking at the ratio of residual deviance and df
 poisson_mod <- glm(n_times_interjected ~ parliament_num + party + gender + offset(log(model_df$n_statements)), 
               data=model_df,family = poisson(link="log"))
 
+# look at deviance/df ratio for overdispersion
 poisson_mod$deviance/poisson_mod$df.residual
 
-# ratio is 18.72 - rule of thumb is it should be about 1 - indicating extreme overdispersion
+# ratio is 18.79 - rule of thumb is it should be about 1 - indicating extreme overdispersion
 ```
 
-```{r}
+```{r neg binom}
+# fit negative binomial model
 mod <- glm.nb(n_times_interjected ~ parliament_num + party + gender + offset(log(model_df$n_statements)), 
               data=model_df, link=log)
 
+# save results
 saveRDS(mod, file="model_results.rds")
 
-summary(mod)[["coefficients"]] %>% as_tibble() %>% 
-  mutate(name=summary(mod)[["coefficients"]] %>% rownames()) %>% 
-  mutate(exp_est = exp(Estimate)) %>% 
-  janitor::clean_names() %>% 
-  dplyr::select(name, estimate, exp_est, everything()) %>% 
-  mutate(across(c(estimate, pr_z, exp_est), ~ round(.x, 4)))
-
+# look at deviance/df ratio for overdispersion
 mod$deviance/mod$df.residual
-
-modelsummary(mod)
+# approx 1 meaning good model fit
 ```

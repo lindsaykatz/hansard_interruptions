@@ -645,11 +645,6 @@ name,parliament_num,party,n_statements,n_times_interjected,gender
 "Katter, Bob (Jr)",41,IND,200,51,male
 "Katter, Bob (Jr)",42,IND,177,40,male
 "Katter, Bob (Jr)",43,IND,57,7,male
-"Katter, Bob (Jr)",43,KAP,189,44,male
-"Katter, Bob (Jr)",44,KAP,180,37,male
-"Katter, Bob (Jr)",45,KAP,246,45,male
-"Katter, Bob (Jr)",46,KAP,192,26,male
-"Katter, Bob (Jr)",47,KAP,196,17,male
 "Kearney, Ged",45,ALP,41,1,female
 "Kearney, Ged",46,ALP,139,17,female
 "Kearney, Ged",47,ALP,103,5,female
@@ -947,7 +942,6 @@ name,parliament_num,party,n_statements,n_times_interjected,gender
 "Owens, Julie",44,ALP,171,44,female
 "Owens, Julie",45,ALP,100,9,female
 "Owens, Julie",46,ALP,67,1,female
-"Palmer, Clive",44,PUP,74,18,male
 "Parke, Melissa",42,ALP,91,9,female
 "Parke, Melissa",43,ALP,149,5,female
 "Parke, Melissa",44,ALP,142,6,female
@@ -1114,10 +1108,6 @@ name,parliament_num,party,n_statements,n_times_interjected,gender
 "Sercombe, Bob",39,ALP,72,11,male
 "Sercombe, Bob",40,ALP,26,9,male
 "Sercombe, Bob",41,ALP,21,8,male
-"Sharkie, Rebekha",45,CA,164,7,female
-"Sharkie, Rebekha",45,NXT,166,4,female
-"Sharkie, Rebekha",46,CA,335,14,female
-"Sharkie, Rebekha",47,CA,148,8,female
 "Sharma, Dave",46,LIB,194,11,male
 "Short, Leonie",39,ALP,7,0,female
 "Shorten, Bill",42,ALP,94,28,male

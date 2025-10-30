@@ -8,17 +8,20 @@ execute:
   message: false
 ---
 
-```{r}
-# environment setup
+```{r setup}
 library(tidyverse)
 library(arrow)
 library(hrbrthemes)
 
 knitr::opts_chunk$set(dev = "ragg_png")
+```
 
+```{r data import}
 # data import
 corpus <- read_parquet("../../inputs/corpus_1998_to_2025.parquet")
+```
 
+```{r filtering}
 # filter for just chamber proceedings
 corpus <- corpus %>% filter(fedchamb_flag==0)
 
@@ -69,7 +72,6 @@ corpus <- corpus %>%
       partyAbbrev=="NP" ~ "The Nationals",
       .default = partyName))
 ```
-
 
 ## Parliament Dates
 

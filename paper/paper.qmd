@@ -25,7 +25,7 @@ Women are increasingly being elected to parliaments around the world, including 
 
 Increases in women's descriptive representation do not automatically lead to stronger substantive representation. Feminist institutionalist scholars argue that political institutions are gendered in ways that constrain women's political influence [@tremblay2003; @sawer2012; @kenny2014]. Formal and informal rules, norms, and hierarchies within institutions can subtly, yet powerfully limit women's ability to engage in substantive representation. One such behaviour is the use of interruptions during parliamentary proceedings. Interruptions are defined as "intrusions into the current speaker's turn" [@kollock1985, p. 38]. Although interruptions are a routine and institutionally sanctioned feature of parliamentary debate, they can be employed particularly by men MPs to assert dominance, undermine, or silence women MPs [@vallejo2022]. As @och2020 argues, such interruptions can be a form of resistance to women's substantive representation, reinforcing gendered power dynamics within parliament.
 
-Following calls by @celis2008 [p. 99] to rethink substantive representation along the lines of "where, how, and why" does it occur, this paper emphasizes the "who" and "how." Specifically, we examine who is interrupted, focusing on the gender and political party affiliation of the Members of Parliament (MPs) and how interruptions can operate as a gendered constraint on substantive representation in the Australian House of Representatives. Our paper asks: do women MPs get interrupted more than men MPs? Does political party affiliation shape which MPs get interrupted the most? 
+Following calls by @celis2008 [p. 99] to rethink substantive representation along the lines of "where, how, and why" does it occur, this paper emphasizes the "who" and "how." Specifically, we examine who is interrupted, focusing on the gender and political party affiliation of the Members of Parliament (MPs) and how interruptions can operate as a gendered constraint on substantive representation in the Australian House of Representatives. Our paper asks: do women MPs get interrupted more than men MPs? Does political party affiliation shape which MPs get interrupted the most?
 
 To answer these questions, we analyze a dataset of digitized Hansard transcripts from the 39th to 47th parliaments (November 1998 to March 2025) [@katz2025]. Through quantitative analysis of parliamentary debates and Question Time (QT), we examine the frequency and nature of interruptions along gendered and party lines. Our findings reveal that women MPs are less likely to be interrupted than men MPs, when accounting for the number of speeches each MP gives in each parliament. We also found that when compared to the Australian Labor Party, MPs affiliated with the Liberal Party of Australia, the Nationals, and the Australian Greens were less likely to be interrupted. Our results highlight that parliamentary and temporal contexts shape the frequency of interruptions, with the 39th and 40th parliaments seeing more interruptions overall than recent parliaments (46th and 47th). These results suggest that increasing the descriptive representation of women is slowly beginning to change institutional norms and contexts.
 
@@ -73,7 +73,7 @@ By focusing on interruptions in the Australian House of Representatives from 199
 
 ## Dataset overview
 
-To perform this analysis, we use a subset of the digitized Australian Hansard corpus produced by @katz2023. This dataset captures parliamentary proceedings in the House of Representatives. It was generated using the XML transcripts available on the Parliament of Australia website. The parsed XML transcripts were reshaped, cleaned, enhanced, and validated using a combination of manual and automated tests, as well as external datasets available in the `AustralianPoliticians` and `ausPH` R packages [@auspol; @leslie_ausph_2024].
+To perform this analysis, we use a subset of the digitized Australian Hansard corpus produced by @katz2023. We updated this data, using the same codebase as @katz2023, so that it includes the years 2023 to 2025. This dataset captures parliamentary proceedings in the House of Representatives. It was generated using the XML transcripts available on the Parliament of Australia website. The parsed XML transcripts were reshaped, cleaned, enhanced, and validated using a combination of manual and automated tests, as well as external datasets available in the `AustralianPoliticians` and `ausPH` R packages [@auspol; @leslie_ausph_2024].
 
 Our dataset contains a total of 535,961 rows, where each row represents an individual statement, with details on who is speaking. For completeness, we analyze whole parliamentary periods. As a result, the earliest date is the first sitting day of parliament number 39 (10 November 1998), and the latest date is the final sitting day of parliament number 47 (27 March 2025). The cutoff dates used for each parliamentary period are available in the Appendix, in @tbl-parl_dates.
 
@@ -138,7 +138,7 @@ The number of unique speakers per day ranges from 1 to 116, with a mean and stan
 
 ![Number of unique speakers per day by gender](images/n_unique_speakers_per_day_gender.png){#fig-speakers-by-gender width="500"}
 
-Of the 535,961 rows in this dataset, 95,522 are flagged as interjections, which amounts to about 18 per cent of the total row count. The distribution of interjections by gender is summarized in @tbl-interject-gender. The proportion of interjections made by men speakers is 53 per cent higher than that of women speakers. Also, 19 per cent of flagged interjections are associated with speakers without a specified gender (NA), most frequently attributed to "Opposition members," "Honourable members," or "Government members."
+Of the 535,961 rows in this dataset, 95,522 are flagged as interjections, which amounts to about 18 per cent of the total row count. The distribution of interjections by gender is summarized in @tbl-interject-gender. The proportion of interjections made by men speakers is 53 percentage points higher than that of women speakers. Also, 19 per cent of flagged interjections are associated with speakers without a specified gender (NA), most frequently attributed to "Opposition members," "Honourable members," or "Government members."
 
 ```{r}
 #| tbl-cap: "Count and proportion of interjections by gender. Note: statements that were not made by an individual MP such as 'Government members interjecting-' could not be assigned a value for gender, resulting in a value of NA."
@@ -229,6 +229,42 @@ read_csv("tables/first_15_rows_model_df.csv", show_col_types = F) %>%
     font_size = 10)
 ```
 
+The rate of interjections received per MP and parliament, broken down by party and gender, are visualized in @fig-rate_interject. These rates are based on the counts of speaking turns and interjections in the analysis dataset. Additionally, the average rates of being interrupted for each parliamentary period are summarized in the @tbl-avg_interject_gender and @tbl-avg_interject_party.
+
+![Rate of interjections per parliament, by gender and party](images/rate_of_interject_plot.png){#fig-rate_interject fig-pos="H" width="600"}
+
+::: {#tbl-panel layout-ncol="2"}
+| Parliament \# | Men  | Women |
+|---------------|------|-------|
+| 39            | 0.28 | 0.19  |
+| 40            | 0.27 | 0.20  |
+| 41            | 0.23 | 0.18  |
+| 42            | 0.22 | 0.16  |
+| 43            | 0.19 | 0.14  |
+| 44            | 0.21 | 0.17  |
+| 45            | 0.18 | 0.13  |
+| 46            | 0.13 | 0.09  |
+| 47            | 0.19 | 0.14  |
+
+: {#tbl-avg_interject_gender}
+
+| Parliament \# | ALP  | IND  | LIB  | NP   | GRN  |
+|---------------|------|------|------|------|------|
+| 39            | 0.23 | 0.11 | 0.27 | 0.37 | NA   |
+| 40            | 0.26 | 0.28 | 0.24 | 0.30 | 0.13 |
+| 41            | 0.23 | 0.31 | 0.21 | 0.26 | NA   |
+| 42            | 0.21 | 0.23 | 0.20 | 0.19 | NA   |
+| 43            | 0.18 | 0.15 | 0.17 | 0.20 | 0.13 |
+| 44            | 0.20 | 0.13 | 0.20 | 0.17 | 0.11 |
+| 45            | 0.17 | 0.06 | 0.17 | 0.17 | 0.23 |
+| 46            | 0.12 | 0.04 | 0.11 | 0.11 | 0.10 |
+| 47            | 0.18 | 0.07 | 0.16 | 0.16 | 0.19 |
+
+: {#tbl-avg_interject_party}
+
+Average rate of being interrupted across parliaments, by gender (@tbl-avg_interject_gender) and party (@tbl-avg_interject_party)
+:::
+
 ## Statistical model
 
 ### Model overview
@@ -285,13 +321,13 @@ broom::tidy(model_output) %>%
 
 Over time, the frequency of interruptions has changed, reflecting increasing descriptive representation of women MPs and evolving parliamentary norms. The `parliament_num` coefficients capture how the expected number of interjections in one parliament compares to that in the 47th parliament (the reference category), holding gender and party affiliation constant. Since the rate ratio for the 39th parliament is $\approx$ 1.5, this indicates that MPs in 39th parliament are expected to be interrupted 1.5 times (or 50 per cent) more than MPs in the 47th parliament. In contrast, this output tells us that an MP in the 46th parliament is expected to be interrupted about 32.8 per cent less than an MP in the 47th parliament (Rate Ratio = 0.672). Interestingly, the rate ratios for earlier parliaments (i.e., 39 through 42) are all greater than 1, while the rate ratios for later parliaments (i.e., 45 and 46) are less than 1. This suggests temporal and contextual changes in the frequency of being interrupted [@kenny2014], holding gender and party affiliation constant. The p-value column indicates that the coefficients for the 39th, 40th, 41st, 42nd, and 46th parliaments are statistically significant at the level of 0.05.
 
-These temporal patterns align with broader research on parliamentary behaviour showing that institutional norms and cultural practices can gradually evolve, influenced by changes in descriptive representation, leadership styles, and societal expectations [@hargrave2022]. For example, earlier parliaments in our dataset (39th to 41st) were characterized by more adversarial debate, which may have encouraged more frequent interruptions [@dowding2021]. In contrast, later parliaments suggest a reduction in the frequency of interjections, potentially reflecting the increasing presence of women MPs, which can contribute to more deliberative and less aggressive debating styles among MPs [@blumenau2021]. 
+These temporal patterns align with broader research on parliamentary behaviour showing that institutional norms and cultural practices can gradually evolve, influenced by changes in descriptive representation, leadership styles, and societal expectations [@hargrave2022]. For example, earlier parliaments in our dataset (39th to 41st) were characterized by more adversarial debate, which may have encouraged more frequent interruptions [@dowding2021]. In contrast, later parliaments suggest a reduction in the frequency of interjections, potentially reflecting the increasing presence of women MPs, which can contribute to more deliberative and less aggressive debating styles among MPs [@blumenau2021].
 
-Patterns of interruptions also vary across parties, reflecting partisan strategic communication objectives and institutional dynamics in the Chamber. The estimated rate ratios for `party` are all less than 1, indicating that after controlling for gender and parliament, MPs from the GRN, IND, LIB or NP parties are expected to experience fewer interruptions than those in the reference group (ALP). In particular, members of the Australian Green Party are predicted to be interrupted about 16.6 per cent less frequently than their ALP counterparts, while Independent MPs are expected to experience about 36 per cent fewer interruptions than an MP in the Australian Labor Party.  In contrast, MPs in the Liberal Party of Australia and the National Party are expected to be interrupted less often than MPs in the Australian Labor Party, by approximately 6.6 percent and 0.5 per cent, respectively. Among these, only the coefficient for the Independent MPs is statistically significant (p < 0.05).
+Patterns of interruptions also vary across parties, reflecting partisan strategic communication objectives and institutional dynamics in the Chamber. The estimated rate ratios for `party` are all less than 1, indicating that after controlling for gender and parliament, MPs from the GRN, IND, LIB or NP parties are expected to experience fewer interruptions than those in the reference group (ALP). In particular, members of the Australian Green Party are predicted to be interrupted about 16.6 per cent less frequently than their ALP counterparts, while Independent MPs are expected to experience about 36 per cent fewer interruptions than an MP in the Australian Labor Party. In contrast, MPs in the Liberal Party of Australia and the National Party are expected to be interrupted less often than MPs in the Australian Labor Party, by approximately 6.6 percent and 0.5 per cent, respectively. Among these, only the coefficient for the Independent MPs is statistically significant (p \< 0.05).
 
 These results by party highlight that prominent roles in parliament, whether in government or as the official opposition, contribute to the frequency of interruptions received. Across the nine parliaments in our dataset, the LIB (in coalitions with the NP) served in government for six parliaments (39th, 40th, 41st, 44th, 45th, 46th) and the ALP for three (42nd, 43rd, 47th). Serving in government and in opposition requires distinct political communication styles, with opposition members strategically utilizing interruptions to boost their profiles and reputations and undermine the government's policy and communication objectives [@diener2025]. In contrast, Independents and members from minor parties (like the Greens) receive less speaking time and therefore fewer opportunities to be interrupted [@riboldi2024; @miragliotta2013]. Our results align with previous research suggesting that members with higher visibility and status (such as Cabinet Ministers) receive more interruptions [@vallejo2022] and that partisanship shapes which members use interruptions to undermine women MPs' substantive representation [@och2020].
 
-Finally, gender remains an important factor in shaping who is interrupted. The `gender` rate ratio indicates that a woman MP is expected to be interrupted about 27 per cent less than a man MP holding party and parliament constant. The associated p-value implies that this effect is significant. 
+Finally, gender remains an important factor in shaping who is interrupted. The `gender` rate ratio indicates that a woman MP is expected to be interrupted about 27 per cent less than a man MP holding party and parliament constant. The associated p-value implies that this effect is significant.
 
 Our work is most closely related to @vandijk2025. For the Australian portion of their analysis, @vandijk2025 consider the period 2011 to 2022 and focus on oral question time. They find that women are not interrupted at different rates to men. Our results show that in Australia across nine parliaments and nearly 30 years, women MPs consistently receive fewer interruptions relative to the number of speeches they give. Our analysis replicates and extends @vandijk2025, and we do not see our findings in substantive contradiction because of the different time periods covered.
 
@@ -299,7 +335,7 @@ These findings of interruptions by gender are notable because they contradict so
 
 However, as @ash2025 note, fewer interruptions do not necessarily imply greater equality or support for substantive representation. Rather, they may indicate an intentional choice to avoid engaging with issues raised by women MPs, particularly by men MP, reflecting a form of exclusion through silence [@krook2022]. This interpretation aligns with broader findings that women's descriptive and substantive representation is not always undermined by outright hostility [@sawer2013; @och2020], but limited interaction or recognition which can be equally as harmful for advancing "women's issues" [@vandijk2025].
 
-Our findings indicate that the frequency of interruptions has declined over time, reflecting changes in parliamentary composition and culture. Party affiliation continues to shape who is most likely to be interrupted, with ALP MPs receiving the most interruptions. As well, gender differences in interruptions highlight that women's growing numerical representation has not only changed the composition of the chamber, but may also influence gradual reforms in discursive and behavioural norms in parliamentary debate [@mackay2010]. 
+Our findings indicate that the frequency of interruptions has declined over time, reflecting changes in parliamentary composition and culture. Party affiliation continues to shape who is most likely to be interrupted, with ALP MPs receiving the most interruptions. As well, gender differences in interruptions highlight that women's growing numerical representation has not only changed the composition of the chamber, but may also influence gradual reforms in discursive and behavioural norms in parliamentary debate [@mackay2010].
 
 # Conclusion
 
@@ -323,15 +359,13 @@ We thank Monica Alexander for helpful comments. This research was funded in part
 
 # Code and data availability
 
-Our code is available at: https://github.com/lindsaykatz/hansard_interruptions and our data are available at: https://zenodo.org/records/17351233. 
+Our code is available at: https://github.com/lindsaykatz/hansard_interruptions and our data are available at: https://zenodo.org/records/17351233.
 
 \newpage
 
 # Appendix
 
-
-:::{#tbl-parl_dates}
-
+::: {#tbl-parl_dates}
 | Parliament Number | First Sitting Day | Last Sitting Day  |
 |-------------------|-------------------|-------------------|
 | 39                | 10 November 1998  | 27 September 2001 |
@@ -344,7 +378,7 @@ Our code is available at: https://github.com/lindsaykatz/hansard_interruptions a
 | 46                | 02 July 2019      | 31 March 2022     |
 | 47                | 26 July 2022      | 27 March 2025     |
 
-: Earliest and latest sitting days in the corpus for each parliament  
+: Earliest and latest sitting days in the corpus for each parliament
 :::
 
 ::: {#tbl-parl_parties}

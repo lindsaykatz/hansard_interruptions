@@ -552,3 +552,49 @@ ggplot(women_mps_stats_plot, aes(x=Parliament)) +
         axis.title.y.right = element_text(hjust = 0.5)) +
   scale_x_continuous(breaks=c(39,40,41,42,43,44,45,46,47))
 ```
+
+## Analysis Dataset Descriptives
+
+```{r}
+model_df <- read_csv("../model/model_input.csv", show_col_types = F) %>% 
+  mutate(rate = n_times_interjected/n_statements,
+         gender = case_when(gender=="male"~"Men",
+                            gender=="female"~"Women"))
+
+ggplot(model_df, aes(x=parliament_num, y=rate, color=gender)) + 
+  geom_point(alpha=0.5) +
+  #geom_jitter(width = .25, height = 0, alpha=0.5) +
+  facet_wrap(~ party)+
+  hrbrthemes::theme_ipsum() +
+  scale_color_manual(values=c("Men"="#66CC99", "Women"="#B0AFFF"))+
+  theme(axis.title.x = element_text(hjust = 0.5),
+        axis.title.y = element_text(hjust = 0.5),
+        legend.position="bottom") +
+  scale_x_continuous(breaks=c(39,40,41,42,43,44,45,46,47)) +
+  labs(y="Rate of Interjection", x="Parliament Number", color="Gender") +
+  theme(text=element_text(size=15),
+        axis.title.x = element_text(size=12),
+        axis.title.y = element_text(size=12))
+
+ggsave("../images/rate_of_interject_plot.png", width=8, height=5)
+```
+
+```{r}
+avg_interject_by_gender<-model_df %>% 
+  group_by(parliament_num, gender) %>% 
+  summarise(avg_rate=round(mean(rate), 2)) %>% 
+  pivot_wider(names_from = gender, values_from = avg_rate) %>% 
+  rename("Parliament Number"=parliament_num)
+
+write_csv(avg_interject_by_gender, "../tables/average_interject_by_gender.csv")
+```
+
+```{r}
+avg_interject_by_party<-model_df %>% 
+  group_by(parliament_num, party) %>% 
+  summarise(avg_rate=round(mean(rate), 2)) %>% 
+  pivot_wider(names_from = party, values_from = avg_rate) %>% 
+  rename("Parliament Number"=parliament_num)
+
+write_csv(avg_interject_by_party, "../tables/average_interject_by_party.csv")
+```

@@ -1,7 +1,6 @@
 ---
 title: "Hansard Summary Statistics"
 format: pdf
-editor: visual
 execute:
   echo: false
   warning: false
@@ -364,8 +363,11 @@ corpus %>%
      #  title = "Number of unique speakers per day",
        caption = "Note: Proceedings captured are from November 1998 to March 2025.") +
   hrbrthemes::theme_ipsum() +
-   theme(axis.title.x = element_text(hjust = 0.5),
-         axis.title.y = element_text(hjust = 0.5)) +
+   theme(
+     text=element_text(size=15),
+     axis.title.x = element_text(hjust = 0.5, size=12),
+     axis.title.y = element_text(hjust = 0.5, size=12),
+     legend.position = "bottom") +
   scale_color_manual(values=c("#66CC99", "#B0AFFF"))
 
 ggsave("../images/n_unique_speakers_per_day_gender.png", width=8, height=5)
@@ -392,7 +394,8 @@ corpus %>%
        caption = "Note: Proceedings captured are from November 1998 to March 2025.") +
   hrbrthemes::theme_ipsum() +
    theme(axis.title.x = element_text(hjust = 0.5),
-         axis.title.y = element_text(hjust = 0.5)) +
+         axis.title.y = element_text(hjust = 0.5),
+         legend.position = "bottom") +
   scale_color_manual(values=c("#66CC99", "#B0AFFF"))
 
 ggsave("../images/n_speakers_per_yr_gender.png", width=8, height=5)
@@ -497,8 +500,11 @@ corpus %>%
        #title = "Number of interjections per day",
        caption = "Note: Proceedings captured are from November 1998 to March 2025.") +
   hrbrthemes::theme_ipsum() +
-   theme(axis.title.x = element_text(hjust = 0.5),
-         axis.title.y = element_text(hjust = 0.5)) +
+   theme(
+     text=element_text(size=15),
+     axis.title.x = element_text(hjust = 0.5, size=12),
+     axis.title.y = element_text(hjust = 0.5, size=12),
+     legend.position = "bottom") +
   scale_color_manual(values=c("Men"="#66CC99", "Women"="#B0AFFF"))
 
 

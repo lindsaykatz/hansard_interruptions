@@ -4,3 +4,4 @@
 .Ruserdata
 .DS_Store
 inputs/
+data/corpus_1998_to_2025.parquet

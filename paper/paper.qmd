@@ -1,6 +1,6 @@
 ---
 title: "Do Women Politicians Face More Interruptions? An Analysis of Interjections in the Australian Parliamentary Debates (1998-2025)"
-abstract: "Interruptions are a routine component of parliamentary debate, but also reveal underlying power dynamics and behavioural norms within political institutions. Using a dataset of digitized Australian Hansard transcripts from 1998 to 2025, this paper examines the frequency of interruptions in the House of Representatives debates, focusing on the effects of gender and political party affiliation. In particular we consider 1,651 sitting days, with 391 unique speakers, across nine parliaments, who made a combined 535,961 statements. There were 95,522 interruptions. We build a Negative Binomial regression model, offset for speeches, and find that women Members of Parliament (MPs) and MPs from centre and centre-left leaning parties are less likely to be interrupted, and that the overall frequency of interruptions declined as the number of women in parliament increased. These findings provide new empirical evidence on the relationship between institutional norms and representation, demonstrating how quantitative analysis of parliamentary speech can detect subtle, gendered patterns of discursive inequality over time."
+abstract: "Interruptions are a routine component of parliamentary debate, but also reveal underlying power dynamics and behavioural norms within political institutions. Using a dataset of digitized Australian Hansard transcripts from 1998 to 2025, this paper examines the frequency of interruptions in the House of Representatives debates, focusing on the effects of gender and political party affiliation. In particular we consider 1,651 sitting days, with 391 unique speakers, across nine parliaments, who made a combined 535,961 statements. There were 95,522 interruptions. We build a negative binomial regression model, offset for speeches, and find that women Members of Parliament (MPs) and MPs from centre and centre-left leaning parties are less likely to be interrupted, and that the overall frequency of interruptions declined as the number of women in parliament increased. We replicate components of this analysis with Large Language Models (LLMs) to assess the alignment between automated and manual analytical findings, and to highlight the potential of LLMs as tools in quantitative political science research. These findings provide new empirical evidence on the relationship between institutional norms and representation, demonstrating how quantitative analysis of parliamentary speech can detect subtle, gendered patterns of discursive inequality over time."
 format: pdf
 bibliography: ref.bib
 csl: chicago.csl
@@ -31,7 +31,7 @@ Increases in women's descriptive representation do not automatically lead to str
 
 Following calls by @celis2008 [p. 99] to rethink substantive representation along the lines of "where, how, and why" does it occur, this paper emphasizes the "who" and "how." Specifically, we examine who is interrupted, focusing on the gender and political party affiliation of the Members of Parliament (MPs) and how interruptions can operate as a gendered constraint on substantive representation in the Australian House of Representatives. Our paper asks: do women MPs get interrupted more than men MPs? Does political party affiliation shape which MPs get interrupted the most?
 
-To answer these questions, we analyze a dataset of digitized Hansard transcripts from the 39th to 47th parliaments (November 1998 to March 2025) [@katz2025]. Through quantitative analysis, using a Negative Binomial regression model offset for speeches, of parliamentary debates and Question Time, we examine the frequency and nature of interruptions along gendered and party lines. Our findings reveal that women MPs may be less likely to be interrupted than men MPs, when accounting for the number of speeches each MP gives in each parliament. We also found that when compared to the Australian Labor Party, MPs affiliated with the Liberal Party of Australia, the Nationals, and the Australian Greens may be less likely to be interrupted. Our results highlight that parliamentary and temporal contexts shape the frequency of interruptions, with the 39th and 40th parliaments seeing more interruptions overall than recent parliaments (46th and 47th). These results suggest that increasing the descriptive representation of women may be slowly beginning to change institutional norms and contexts.
+To answer these questions, we analyze a dataset of digitized Hansard transcripts from the 39th to 47th parliaments (November 1998 to March 2025) [@katz2025]. Through quantitative analysis, using a negative binomial regression model offset for speeches, of parliamentary debates and Question Time, we examine the frequency and nature of interruptions along gendered and party lines. Our findings reveal that women MPs may be less likely to be interrupted than men MPs, when accounting for the number of speeches each MP gives in each parliament. We also found that when compared to the Australian Labor Party, MPs affiliated with the Liberal Party of Australia, the Nationals, and the Australian Greens may be less likely to be interrupted. Our results highlight that parliamentary and temporal contexts shape the frequency of interruptions, with the 39th and 40th parliaments seeing more interruptions overall than recent parliaments (46th and 47th). These results suggest that increasing the descriptive representation of women may be slowly beginning to change institutional norms and contexts.
 
 This paper contributes to a small, but growing body of quantitative research analyzing the substantive representation of women in Australian politics [@vacaflores2025; @vandijk2025]. By combining feminist institutional analysis with quantitative methods, we show how institutional constraints like interruptions undermine women's substantive representation.
 
@@ -191,7 +191,7 @@ Next we performed some data cleaning with respect to the `party` variable. We id
 Based on the model design, detailed in the next section, the input data must have one row for every MP per parliament, with their party affiliation, gender, number of interruptions received (outcome), and the number of speaking turns (offset). For the offset, we count each row within a given speech separately as a speaking turn. For example, in @tbl-sample-speech-2, it is Craig Emerson's turn to speak, and during this speech he was interrupted five times. After making his first statement, he was interrupted by both Bronwyn Bishop and Government members. Once the Speaker called "Order!" and he continued speaking, he was interrupted by Luke Simpkins. The Speaker spoke again, and then Craig Emerson spoke for the third time, after which he was interrupted by Opposition members, and finally the Speaker gave the floor to the Manager of Opposition Business to begin a new speech. Although this all happened within a single speech in which Craig Emerson had the floor, it contributes three units (i.e., speaking turns) to the offset because there were three separate instances in which Craig Emerson had a speaking turn and could be interrupted. This would also contribute five units (i.e., interjections) to the outcome count, because Craig Emerson was interrupted five times during this speech.
 
 ```{r}
-#| tbl-cap: "All rows of speech number 74 from 12 February 2014"
+#| tbl-cap: "All rows of speech number 74 from 14 February 2013"
 #| tbl-cap-location: bottom 
 #| label: tbl-sample-speech-2
 
@@ -273,13 +273,13 @@ Average rate of being interrupted across parliaments, by gender (@tbl-avg_interj
 
 ### Model overview
 
-This project explores how a given MP's gender and political party affiliation impact the frequency of interruptions made toward them while it is their turn to speak. We use a Negative Binomial model to perform this analysis, where the outcome $\mu_i$ represents the expected count of interruptions made toward an individual MP ($i$) within a given parliament.
+This project explores how a given MP's gender and political party affiliation impact the frequency of interruptions made toward them while it is their turn to speak. We use a negative binomial model to perform this analysis, where the outcome $\mu_i$ represents the expected mean number of interruptions made toward an individual MP ($i$) within a given parliament.
 
 We chose this model because it is well suited for modeling count outcome variables, such as the number of interjections. While a Poisson model is also suitable for count outcomes, it assumes that all observations for a given set of predictors share one underlying rate, equal to both the mean and the variance, which does not hold in the data at hand. In this setting, the Poisson model assumes one rate of interruptions for all MPs with a given combination of values for parliament number, gender, and political party, and that any other variation observed is due solely to randomness. This assumption is not reasonable here because there are sources of variance that cannot be observed which influence the rate at which an MP is interrupted, such as speaking style or personality [@hargrave2022; @ilie2013]. For example, an MP who is aggressive or harsh would likely get interrupted more frequently than one who is not aggressive [@blumenau2021; @kathlene1994]. Since these sources of heterogeneity cannot be observed, the amount of variation present in the data will be higher than what would be expected under the Poisson model, and the assumption of an equal mean and variance will be violated. This situation is referred to as overdispersion.
 
-One way to check for overdispersion is by comparing the residual deviance of a model to its degrees of freedom. If the model and assumed variance structure are a good fit for the data, then these two values should be approximately equal (i.e., ratio of approximately 1) [@roback2021beyond]. To validate our choice to use a Negative Binomial model instead of a Poisson model, we compared the ratio of residual deviance and degrees of freedom in both models. Under the Poisson model, this value is approximately 18.7, indicating major overdispersion. In contrast, under the Negative Binomial model, this value is approximately 1.01, which is indicative of a better model fit. Overdispersion is not an issue in the Negative Binomial case because the variance structure of the model accounts for it by including a dispersion parameter $\theta$, which allows the variance to exceed the mean, thereby accounting for unobserved sources of variation. This leads to an improved model fit and more reliable estimates.
+One way to check for overdispersion is by comparing the residual deviance of a model to its degrees of freedom. If the model and assumed variance structure are a good fit for the data, then these two values should be approximately equal (i.e., ratio of approximately 1) [@roback2021beyond]. To validate our choice to use a negative binomial model instead of a Poisson model, we compared the ratio of residual deviance and degrees of freedom in both models. Under the Poisson model, this value is approximately 18.7, indicating major overdispersion. In contrast, under the negative binomial model, this value is approximately 1.01, which is indicative of a better model fit. Overdispersion is not an issue in the negative binomial case because the variance structure of the model accounts for it by including a dispersion parameter $\theta$, which allows the variance to exceed the mean, thereby accounting for unobserved sources of variation. This leads to an improved model fit and more reliable estimates.
 
-Following @rayment2024, the model has parliament fixed effects to capture contextual changes between parliaments. We also include an offset for the number of times it was an MP's turn to speak, to account for the fact that an MP who gives more speeches has more opportunities to be interrupted. This works by scaling the outcome variable to adjust for differences in exposure (i.e., speaking turns) across observations (i.e., MPs), resulting in the outcome being modeled as a rate rather than a count so that interjection rates between MPs are comparable. Offset terms are included in the model as predictors, and are assigned a coefficient value of 1 which is not estimated, and as such will not be included in the regression output. This model design allows us to predict the number of interruptions that will be directed towards an MP with a certain set of characteristics in a single parliament period.
+Following @rayment2024, the model has parliament fixed effects to capture contextual changes between parliaments. We also include an offset for the number of times it was an MP's turn to speak, to account for the fact that an MP who gives more speeches has more opportunities to be interrupted. This works by scaling the outcome variable to adjust for differences in exposure (i.e., speaking turns) across observations (i.e., MPs), resulting in the outcome being modeled as a rate rather than a count so that interjection rates between MPs are comparable. Offset terms are included in the model as predictors, and are assigned a coefficient value of 1 which is not estimated, and as such will not be included in the regression output. This model design allows us to predict the rate of interruptions directed towards an MP with a certain set of characteristics in a single parliament period.
 
 ### Model notation
 
@@ -287,25 +287,25 @@ The model is denoted as follows:
 
 $$
 \begin{aligned}
-y_i &\sim \text{Negative Binomial}(\mu_i, \theta) \\
+y_i &\sim \text{negative binomial}(\mu_i, \theta) \\
 \log(\mu_i) &= \beta_0 + \beta_1 \text{Woman}_i  + \sum_{k=1}^8 \beta_k \text{Parliament}_{ki}+ \sum_{j=1}^{4} \beta_j \text{Party}_{ji} + \log(S_i)
 \end{aligned}
 $$
 
 where
 
--   $\mu_i$ is a count of the expected number of interruptions for MP $i$.
+-   $\mu_i$ is the expected (mean) number of interruptions for MP $i$.
 -   $\theta$ is the dispersion parameter.
 -   $\text{Woman}_i$ is a dummy variable equal to $1$ if MP $i$ is a woman, and $0$ otherwise.
 -   $\text{Parliament}_{ki}$ is a dummy variable equal to $1$ if MP $i$ is part of parliament $k$, and $0$ otherwise. There are nine unique parliamentary periods in the analysis dataset, and the sum ranges from $1$ to $8$ because the $9^{th}$ acts as the reference category.
 -   $\text{Party}_{ji}$ is a categorical variable that reflects the party $j$ that MP $i$ is a member of in the specified parliament. There are five unique party affiliations in the analysis dataset, and the sum ranges from $1$ to $4$ because the $5^{th}$ acts as the reference category.
 -   $\log(\text{S}_i)$ is the offset term for the number of speaking turns had by MP $i$.
 
-We performed this analysis using R Statistical Software, version 4.3.3 [@r]. After preparing the model input data, the `glm.nb` function from the `MASS` package was used to fit a Negative Binomial regression model with a log link function, as defined in the previous section [@MASS]. The parliament number, party abbreviation, and gender variables were coded as factors to ensure they were correctly interpreted as categorical variables in the model.
+We performed this analysis using R Statistical Software, version 4.3.3 [@r]. After preparing the model input data, the `glm.nb` function from the `MASS` package was used to fit a negative binomial regression model with a log link function, as defined in the previous section [@MASS]. The parliament number, party abbreviation, and gender variables were coded as factors to ensure they were correctly interpreted as categorical variables in the model.
 
 # Analysis and results
 
-The results from our model, summarized in @tbl-model-coeffs and @fig-model-coeffs, show how patterns of interruptions in the House of Representatives evolved between 1998 and 2025, and how these dynamics vary by parliament, party, and gender. @tbl-parl_parties in the Appendix provides the full party name associated with each abbreviation. This model output has a total of 14 coefficients: one intercept coefficient, eight parliament number coefficients where the reference category is parliament number 47, four party coefficients where the reference category is the Australian Labor Party, and one coefficient for the woman variable. Since the outcome of the Negative Binomial model is on the log scale, exponentiating the coefficient values yields rate ratios which are easier to interpret. For categorical variables, rate ratios capture the multiplicative effect of a variable on the expected count of interjections, relative to its reference category. A rate ratio which is greater than one implies that the expected count of interjections is higher than the reference category, and a rate ratio less than one indicates that the expected count of interjections is lower than the reference category. This effect can also be expressed in terms of percentages. For instance, a rate ratio of 0.75 corresponds to a 25 per cent lower expected count compared to the reference category, while a rate ratio of 1.30 corresponds to a 30 per cent higher expected count compared to the reference category.
+The results from our model, summarized in @tbl-model-coeffs and @fig-model-coeffs, show how patterns of interruptions in the House of Representatives evolved between 1998 and 2025, and how these dynamics vary by parliament, party, and gender. @tbl-parl_parties in the Appendix provides the full party name associated with each abbreviation. This model output has a total of 14 coefficients: one intercept coefficient, eight parliament number coefficients where the reference category is parliament number 47, four party coefficients where the reference category is the Australian Labor Party, and one coefficient for the woman variable. Since the outcome of the negative binomial model is on the log scale, exponentiating the coefficient values yields rate ratios which are easier to interpret. For categorical variables, rate ratios capture the multiplicative effect of a variable on the expected rate of interjections, relative to its reference category. A rate ratio which is greater than one implies that the expected rate of interjections is higher than the reference category, and a rate ratio less than one indicates that the expected rate of interjections is lower than the reference category. This effect can also be expressed in terms of percentages. For instance, a rate ratio of 0.75 corresponds to a 25 per cent lower expected rate compared to the reference category, while a rate ratio of 1.30 corresponds to a 30 per cent higher expected rate compared to the reference category.
 
 ```{r, message=FALSE, warning=FALSE}
 #| tbl-cap: "Regression results"
@@ -405,7 +405,8 @@ Our code is available at: https://github.com/lindsaykatz/hansard_interruptions a
 
 # Appendix
 
-::: {#tbl-parl_dates}
+## Parliament dates
+
 | Parliament Number | First Sitting Day | Last Sitting Day  |
 |-------------------|-------------------|-------------------|
 | 39                | 10 November 1998  | 27 September 2001 |
@@ -418,10 +419,10 @@ Our code is available at: https://github.com/lindsaykatz/hansard_interruptions a
 | 46                | 02 July 2019      | 31 March 2022     |
 | 47                | 26 July 2022      | 27 March 2025     |
 
-: Earliest and latest sitting days in the corpus for each parliament
-:::
+: Earliest and latest sitting days in the corpus for each parliament {#tbl-parl_dates}
 
-::: {#tbl-parl_parties}
+## Party abbrevations and names
+
 | Party Abbreviation | Party Name                 |
 |--------------------|----------------------------|
 | ALP                | Australian Labor Party     |
@@ -430,8 +431,86 @@ Our code is available at: https://github.com/lindsaykatz/hansard_interruptions a
 | LIB                | Liberal Party of Australia |
 | NP                 | The Nationals              |
 
-: Abbreviations and full names of Australian political parties
-:::
+: Abbreviations and full names of Australian political parties {#tbl-parl_parties}
+
+## Model with interaction term for gender and political party
+
+To examine possible heterogeneity in the effect of gender on frequency of being interrupted, we ran a negative binomial model with the same structure as described above and an added interaction term for the gender and party covariates. Including this interaction term enables us to explore whether the impact of an MPs gender on their interruption rate differs across political party affiliations. The results of this model are tabulated in @tbl-model-coeffs-interaction, and are visualized in @fig-model-coeffs-interaction.
+
+Comparing these results to those of the initial model, it is evident that the effects of gender and parliament number remain about the same in terms of magnitude and statistical significance.The party related coefficients did not change substantially either. The main difference is that the coefficient for the Independent party is no longer statistically significant in this model, while it was in the initial model. In terms of the interaction coefficients, based on the p-values, the only significant term is for women Independents, who have especially low interruption rates compared with what was predicted by the main effects model. 
+
+In summary, the inclusion of an interaction term for gender and party reveals that party-specific variation in gender effects is limited, aside from the lower interruption rate among women Independents. This model extension allows for a more nuanced understanding of differences in the frequency of being interjected, instead of assuming a uniform effect of gender across parties.
+
+```{r, message=FALSE, warning=FALSE}
+#| tbl-cap: "Regression results with interaction term"
+#| tbl-cap-location: bottom 
+#| label: tbl-model-coeffs-interaction
+
+model_output_interaction <- readRDS("model/model_interaction_results.rds")
+
+broom::tidy(model_output_interaction) %>%
+  mutate(odds_ratio = exp(estimate)) %>% 
+  dplyr::select(term, estimate, odds_ratio, p.value) %>% 
+  mutate(across(c(estimate, odds_ratio, p.value), ~round(.x, 3))) %>%
+  rename(Term=term, `Regression Coefficient`=estimate, `Rate Ratio`=odds_ratio, `P-value`=p.value) %>% 
+  mutate(Term = ifelse(Term=="genderfemale", "genderWoman", Term)) %>% 
+  kableExtra::kbl(booktabs = TRUE, linesep = "")
+```
+
+```{r}
+#| fig-cap: "Regression results with interaction term"
+#| label: fig-model-coeffs-interaction
+
+cm_interaction <-
+  c(
+    'genderfemale' = 'Woman',
+    'partyNP' = 'Nationals',
+    'partyLIB' = 'Liberals',
+    'partyIND' = 'Independent',
+    'partyGRN' = 'Greens',
+    'parliament_num46' = '46th parliament',
+    'parliament_num45' = '45th parliament',
+    'parliament_num44' = '44th parliament',
+    'parliament_num43' = '43rd parliament',
+    'parliament_num42' = '42nd parliament',
+    'parliament_num41' = '41st parliament',
+    'parliament_num40' = '40th parliament',
+    'parliament_num39' = '39th parliament',
+    'partyGRN:genderfemale' = 'Greens, woman',
+    'partyIND:genderfemale' = 'Independent, woman',
+    'partyLIB:genderfemale' = 'Liberals, woman',
+    'partyNP:genderfemale' = 'Nationals, woman'
+  )
+
+modelplot(
+  model_output_interaction,
+  coef_omit = 'Intercept',
+  coef_map = cm_interaction
+) +
+  theme(text = element_text(size = 15)) +
+  labs(caption = "Note: Reference category is the Labor Party and the 47th Parliament.") +
+  hrbrthemes::theme_ipsum() +
+  theme(
+    axis.title.x = element_text(hjust = 0.5),
+    axis.title.y = element_text(hjust = 0.5)
+  )
+```
+
+## Replication with Large Language Models (LLMs)
+
+The accessibility of Large Language Models (LLMs) presents a unique opportunity to explore their use in quantitative political science research. We utilize the current, free version of ChatGPT to assess the alignment of our analytical approach for the research question of interest to that generated by a LLM. Two different prompts are used to explore this. The first one describes the dataset in detail and provides the general research goal, while the other provides a sample of 5 rows of the dataset in CSV format as well as the general research goal. The exact prompts provided to the LLM are below.
+
+*Prompt 1:* I have a dataset with all proceedings of the Australian Parliamentary Debates in the House of Representatives from March 1998 to March 2025. Each row represents an individual statement, and there are columns for the name of the individual speaking, their gender, political party, the date of the proceedings (sitting day), the speech number which is the index associated with each speech made on the given sitting day, including all statements, comments and interjections made in the duration of that speech. It also includes an order number column which starts from 1 with each new sitting day, and provides the row ordering for all rows within that sitting day. Finally, there is a binary column called “interject”, which flags statements that are made by an MP when it is not their turn to speak with a value of 1, and otherwise has a value of 0. I want to explore how an MP’s gender and party aﬀiliation impact the frequency of interruptions they receive (i.e., made towards them) while it is their turn to speak. How should I approach this?
+
+*Prompt 2:* Here is a CSV with 5 rows of a dataset I have on the Australian Parliamentary Debates in the House of Representatives. The complete dataset spans from March 1998 to March 2025. I want to explore how an MP’s gender and party aﬀiliation impact the frequency of interruptions they receive (i.e., made towards them) while it is their turn to speak. How should I approach this?
+
+Both prompts resulted in output that was formatted as a series of steps, starting with clarifying the unit of analysis, followed by data reshaping. Interestingly, prompt 1 yielded more detailed data reshaping suggestions than prompt 2. In particular, the output from prompt 1 specified exactly how to identify the MP with the floor for each speech using the interject variable, how to count interruptions within each speech, and what the reshaped dataset for modeling should look like. In contrast, the output from prompt 2 was more general. 
+
+After the data reshaping step, the output from prompt 1 went straight into selecting the modeling framework, while the output from prompt 2 suggested performing some exploratory data analysis before modeling. In terms of the suggested model structures, both outputs suggested a negative binomial model including gender, party, government status, and parliament predictors. Both also mentioned the need to incorporate speech length in the model, however output from prompt 1 suggested using it as an offset, while output from prompt 2 suggested adding it as a regular covariate. Interestingly, neither considered the approach we took of including an offset by the number of speaking turns. Also, the output from prompt 2 suggested using an interaction term for gender and party in the model, while that of prompt 1 made no mention of interaction terms. 
+
+After defining the modeling approach, the output from prompt 1 gave further research ideas, while the output from prompt 2 provided guidance on coefficient interpretation. Both outputs then suggested some validation checks to run before modeling.
+
+Overall, this comparison illustrates the ways in which LLM output can vary depending on the structure and specificity of the prompt provided, even when the underlying research question is the same. While the general approach was similar, there were key differences in the recommended methodology such as one suggesting using an offset and the other suggesting an interaction term in the model. These fundamental differences suggest that LLMs can produce reasonable methodological approaches with different amounts of information provided, however they do not reliably converge on one consistent approach. In sum, this exploration underscores the importance of thoughtful, detailed prompt design when using LLMs for research purposes, as well as the need for human judgement in refining and assessing analytical approaches generated by LLMs.
 
 \newpage
 

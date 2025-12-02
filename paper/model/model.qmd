@@ -152,6 +152,21 @@ model_df$party <- relevel(model_df$party, ref="ALP")
 write_csv(model_df, "model_input.csv")
 ```
 
+```{r}
+# import model_df
+model_df <- read_csv("model_input.csv", show_col_types = F)
+
+# recode variables correctly
+model_df <- model_df %>% 
+  mutate(across(c(parliament_num, party, gender), ~ as.factor(.x))) %>% 
+  mutate(across(c(n_statements, n_times_interjected), ~ as.numeric(.x)))
+
+# relevel parliament number and gender
+model_df$parliament_num <- relevel(model_df$parliament_num, ref="47")
+model_df$gender <- relevel(model_df$gender, ref="male")
+model_df$party <- relevel(model_df$party, ref="ALP")
+```
+
 ```{r poisson}
 # check for overdispersion by fitting the poisson model and looking at the ratio of residual deviance and df
 poisson_mod <- glm(n_times_interjected ~ parliament_num + party + gender + offset(log(model_df$n_statements)), 
@@ -174,4 +189,15 @@ saveRDS(mod, file="model_results.rds")
 # look at deviance/df ratio for overdispersion
 mod$deviance/mod$df.residual
 # approx 1 meaning good model fit
+```
+
+```{r interaction}
+mod_interaction <- glm.nb(
+  n_times_interjected ~ parliament_num + party + gender + party*gender + offset(log(model_df$n_statements)), 
+              data=model_df, link=log)
+
+summary(mod_interaction)
+
+# save results
+saveRDS(mod_interaction, file="model_interaction_results.rds")
 ```
